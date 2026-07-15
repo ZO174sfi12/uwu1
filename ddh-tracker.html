@@ -73,7 +73,13 @@
   /* WEEK STRIP */
   .week{
     display:flex;align-items:center;justify-content:space-between;
-    padding:20px 24px;border-bottom:1px solid var(--line);
+    padding:20px 24px 12px;
+  }
+  .week-plan{padding:0 24px 20px;border-bottom:1px solid var(--line);}
+  .plan-hint{
+    display:none;margin-bottom:16px;padding:10px 14px;font-size:13px;
+    background:rgba(77,227,255,.08);border:1px solid var(--accent2);border-radius:12px;
+    color:var(--accent2);font-family:"SF Mono",ui-monospace,monospace;
   }
   .week .label{font-size:13px;color:var(--muted);font-weight:600;}
   .dots{display:flex;gap:10px;}
@@ -206,30 +212,13 @@
       <div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
   </div>
-
-  <section>
-    <h2>Deze week volgens plan</h2>
+  <div class="week-plan">
     <div class="plan-card" id="planThisWeek"></div>
-  </section>
+  </div>
 
-  <section>
-    <h2>Volledig schema</h2>
-    <details class="schedule" id="scheduleDetails">
-      <summary>Alle 13 weken bekijken <span class="chev">▾</span></summary>
-      <div id="scheduleList"></div>
-    </details>
-  </section>
-
-  <section>
-    <h2>Aanmoediging</h2>
-    <div class="mascot-card">
-      <div class="mascot-face">(=^･ω･^=)</div>
-      <div class="mascot-bubble" id="mascotMsg">...</div>
-    </div>
-  </section>
-
-  <section>
+  <section id="inputSection">
     <h2>Training loggen</h2>
+    <div class="plan-hint" id="planHint"></div>
     <div class="field">
       <label for="f-date">Datum</label>
       <input type="date" id="f-date">
@@ -271,6 +260,19 @@
   </section>
 
   <section>
+    <h2>Logboek</h2>
+    <div id="logList"><div class="empty">Nog geen trainingen gelogd.</div></div>
+  </section>
+
+  <section>
+    <h2>Aanmoediging</h2>
+    <div class="mascot-card">
+      <div class="mascot-face">(=^･ω･^=)</div>
+      <div class="mascot-bubble" id="mascotMsg">...</div>
+    </div>
+  </section>
+
+  <section>
     <h2>GitHub sync (optioneel)</h2>
     <details class="schedule" id="githubDetails">
       <summary>Instellingen <span class="chev">▾</span></summary>
@@ -286,8 +288,10 @@
   </section>
 
   <section>
-    <h2>Logboek</h2>
-    <div id="logList"><div class="empty">Nog geen trainingen gelogd.</div></div>
+    <h2>Volledig plan</h2>
+    <img src="plan.png" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
+         style="display:block;width:100%;border-radius:18px;border:1px solid var(--line);"
+         onerror="this.parentElement.style.display='none'">
   </section>
 
 </div>
@@ -298,34 +302,36 @@ const GOAL_PACE_SEC = 5*60+50; // 5'50"/km in seconds
 const STORAGE_KEY = 'ddh-training-log';
 const GITHUB_CONFIG_KEY = 'ddh-github-config';
 const GITHUB_TRIGGER = 'punani';
+const SYNC_FLAG_KEY = 'ddh-sync-enabled';
 
 // Trainingsschema: week 1 start op maandag 13/7/2026
 const PLAN_START = new Date('2026-07-13T00:00:00');
+// desc = wat het plan zegt; duur/afstand = realistische prefill voor de hele sessie (incl. in-/uitlopen)
 const PHASES = [
   { name:'Basis', weeks:[1,2,3,4], sessions:{
-    rustig:"25-30' @ ~7'00\"/km",
-    tempo:"4-5x3' @ 5'10-5'20\"/km, 90s jog",
-    lang:"35-40' @ ~6'45\"/km"
+    rustig:{desc:"25-30' @ ~7'00\"/km", duur:30, afstand:4.3},
+    tempo:{desc:"4-5x3' @ 5'10-5'20\"/km, 90s jog", duur:35, afstand:5.8},
+    lang:{desc:"35-40' @ ~6'45\"/km", duur:40, afstand:5.9}
   }},
   { name:'Opbouw', weeks:[5,6,7,8], sessions:{
-    rustig:"30-35' @ ~6'45\"/km",
-    tempo:"15-20' continu @ 5'50-6'00\"/km",
-    lang:"40', laatste 10' @ 5'50\"/km"
+    rustig:{desc:"30-35' @ ~6'45\"/km", duur:35, afstand:5.2},
+    tempo:{desc:"15-20' continu @ 5'50-6'00\"/km", duur:40, afstand:6.3},
+    lang:{desc:"40', laatste 10' @ 5'50\"/km", duur:40, afstand:6.1}
   }},
   { name:'Piek', weeks:[9,10,11], sessions:{
-    rustig:"30' @ ~6'30\"/km",
-    tempo:"20-25' continu @ 5'50\"/km (of 3x8' @ 5'40\"/km)",
-    lang:"45' (cap), opbouwend naar 5'50\"/km"
+    rustig:{desc:"30' @ ~6'30\"/km", duur:30, afstand:4.6},
+    tempo:{desc:"20-25' continu @ 5'50\"/km (of 3x8' @ 5'40\"/km)", duur:45, afstand:7.2},
+    lang:{desc:"45' (cap), opbouwend naar 5'50\"/km", duur:45, afstand:7.1}
   }},
   { name:'Taper', weeks:[12], sessions:{
-    rustig:"-30% volume",
-    tempo:"5-6x2' @ 5'10\"/km, scherp houden",
-    lang:"30' rustig"
+    rustig:{desc:"-30% volume", duur:20, afstand:3.0},
+    tempo:{desc:"5-6x2' @ 5'10\"/km, scherp houden", duur:30, afstand:4.8},
+    lang:{desc:"30' rustig", duur:30, afstand:4.3}
   }},
   { name:'Wedstrijdweek', weeks:[13], sessions:{
-    rustig:"20' licht + 3-4 versnellingen",
-    tempo:"rust",
-    lang:"Wedstrijd zo 11/10 — doel onder 60:00"
+    rustig:{desc:"20' licht + 3-4 versnellingen", duur:20, afstand:2.9},
+    tempo:{desc:"rust", duur:null, afstand:null},
+    lang:{desc:"Wedstrijd zo 11/10 — doel onder 60:00", duur:60, afstand:10}
   }},
 ];
 const TOTAL_WEEKS = 13;
@@ -501,7 +507,7 @@ function renderPlanThisWeek(){
     return `<div class="plan-session${isDone?' done':''}" data-type="${type}">
       <span class="check">${isDone?'✓':'○'}</span>
       <span class="tag">${label}</span>
-      <span class="desc">${phase.sessions[type]}</span>
+      <span class="desc">${phase.sessions[type].desc}</span>
     </div>`;
   };
 
@@ -516,36 +522,29 @@ function renderPlanThisWeek(){
   `;
 
   el.querySelectorAll('.plan-session').forEach(rowEl=>{
-    rowEl.addEventListener('click', ()=>{
-      document.getElementById('f-type').value = rowEl.dataset.type;
-      const duurField = document.getElementById('f-duur');
-      duurField.focus();
-      duurField.scrollIntoView({behavior:'smooth', block:'center'});
-    });
+    rowEl.addEventListener('click', ()=> prefillTraining(rowEl.dataset.type));
   });
 }
 
-function renderFullSchedule(){
-  const currentWk = getWeekNumber(new Date());
-  const listEl = document.getElementById('scheduleList');
-  let html = '';
-  for(let w=1; w<=TOTAL_WEEKS; w++){
-    const [start,end] = getWeekBounds(w);
-    const phase = getPhaseForWeek(w);
-    const active = w===currentWk;
-    html += `
-      <div class="week-row${active?' active':''}">
-        <span class="wk">W${w}</span>
-        <span class="dates">${fmtShort(start)}–${fmtShort(end)}</span>
-        <span class="phase">${phase.name}</span>
-      </div>`;
-  }
-  listEl.innerHTML = html;
-  // open automatically the eerste keer zodat de huidige week zichtbaar is
-  if(!listEl.dataset.opened){
-    document.getElementById('scheduleDetails').open = true;
-    listEl.dataset.opened = '1';
-  }
+// Springt naar het invoerdeel en vult alles voorin volgens het plan.
+// In het ideale geval hoef je enkel nog het wachtwoord te typen en op te slaan.
+function prefillTraining(type){
+  const wk = Math.min(Math.max(getWeekNumber(new Date()),1), TOTAL_WEEKS);
+  const phase = getPhaseForWeek(wk);
+  const s = phase.sessions[type];
+
+  document.getElementById('f-date').valueAsDate = new Date();
+  document.getElementById('f-type').value = type;
+  document.getElementById('f-duur').value = s.duur ?? '';
+  document.getElementById('f-afstand').value = s.afstand ?? '';
+  document.getElementById('f-plan').checked = true;
+
+  const hint = document.getElementById('planHint');
+  hint.textContent = `📋 Week ${wk} · ${phase.name}: ${s.desc}`;
+  hint.style.display = 'block';
+
+  document.getElementById('inputSection').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>document.getElementById('f-comment').focus({preventScroll:true}), 400);
 }
 
 const ENCOURAGEMENT = {
@@ -599,39 +598,40 @@ function renderAll(){
   renderCountdown();
   renderWeek();
   renderPlanThisWeek();
-  renderFullSchedule();
   renderMascot();
   renderList();
   renderChart();
 }
 
+function syncEnabled(){
+  return localStorage.getItem(SYNC_FLAG_KEY) === '1';
+}
 async function load(){
   try{
-    const res = await window.storage.get(STORAGE_KEY, false);
-    entries = res ? JSON.parse(res.value) : [];
+    entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   }catch(e){
     entries = [];
   }
 }
 async function save(){
   try{
-    await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }catch(e){
     console.error('Opslaan mislukt', e);
   }
+  if(syncEnabled()) pushToGithub();
 }
 
 async function loadGithubConfig(){
   try{
-    const res = await window.storage.get(GITHUB_CONFIG_KEY, false);
-    return res ? JSON.parse(res.value) : null;
+    return JSON.parse(localStorage.getItem(GITHUB_CONFIG_KEY)) || null;
   }catch(e){
     return null;
   }
 }
 async function saveGithubConfig(cfg){
   try{
-    await window.storage.set(GITHUB_CONFIG_KEY, JSON.stringify(cfg), false);
+    localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(cfg));
     return true;
   }catch(e){
     return false;
@@ -695,6 +695,28 @@ async function pushToGithub(){
     setSyncStatus('Netwerkfout bij synchroniseren met GitHub.', true);
   }
 }
+async function pullFromGithub(){
+  const cfg = await loadGithubConfig();
+  if(!cfg || !cfg.token || !cfg.repo || !cfg.path) return;
+  const branch = cfg.branch || 'main';
+  try{
+    const res = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/${cfg.path}?ref=${encodeURIComponent(branch)}`, {
+      headers:{ Authorization:`Bearer ${cfg.token}`, Accept:'application/vnd.github+json' }
+    });
+    if(!res.ok) return;
+    const data = await res.json();
+    const remote = JSON.parse(decodeURIComponent(escape(atob((data.content||'').replace(/\n/g,'')))));
+    if(!Array.isArray(remote)) return;
+    const ids = new Set(entries.map(e=>e.id));
+    let added = 0;
+    remote.forEach(e=>{ if(e && e.id && !ids.has(e.id)){ entries.push(e); added++; } });
+    if(added){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      renderAll();
+      setSyncStatus(`✓ ${added} training(en) opgehaald van GitHub`, false);
+    }
+  }catch(e){ /* offline of geen toegang — lokaal werkt gewoon door */ }
+}
 
 document.getElementById('gh-save').addEventListener('click', async ()=>{
   const cfg = {
@@ -713,7 +735,21 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
   const duur = parseFloat(document.getElementById('f-duur').value);
   const afstand = parseFloat(document.getElementById('f-afstand').value);
   const plan = document.getElementById('f-plan').checked;
-  const comment = document.getElementById('f-comment').value.trim();
+  let comment = document.getElementById('f-comment').value.trim();
+
+  // Wachtwoord is verplicht om te kunnen loggen; wordt niet mee opgeslagen
+  if(!comment.toLowerCase().includes(GITHUB_TRIGGER)){
+    alert('Wachtwoord vereist: typ het in het opmerkingsveld om te loggen.');
+    return;
+  }
+  localStorage.setItem(SYNC_FLAG_KEY, '1');
+  comment = comment.replace(new RegExp(GITHUB_TRIGGER, 'ig'), '').replace(/\s{2,}/g,' ').trim();
+  // Alleen het wachtwoord getypt? Dan enkel synchroniseren, geen entry aanmaken.
+  if(!duur && !afstand && !comment){
+    document.getElementById('f-comment').value='';
+    pushToGithub();
+    return;
+  }
 
   if(!date || !duur || !afstand){
     alert('Vul minstens datum, duur en afstand in.');
@@ -724,18 +760,15 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
     id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
     date, type, duur, afstand, plan, comment
   });
-  await save();
+  await save(); // save() pusht automatisch naar GitHub zodra sync actief is
 
   document.getElementById('f-duur').value='';
   document.getElementById('f-afstand').value='';
   document.getElementById('f-comment').value='';
   document.getElementById('f-plan').checked=true;
+  document.getElementById('planHint').style.display='none';
 
   renderAll();
-
-  if(comment.toLowerCase().includes(GITHUB_TRIGGER)){
-    pushToGithub();
-  }
 });
 
 (async ()=>{
@@ -743,6 +776,7 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
   await load();
   await populateGithubForm();
   renderAll();
+  pullFromGithub(); // haalt op de achtergrond het log op van GitHub en merget nieuwe entries
 })();
 </script>
 </body>
