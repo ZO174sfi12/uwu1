@@ -81,6 +81,22 @@
     background:rgba(77,227,255,.08);border:1px solid var(--accent2);border-radius:12px;
     color:var(--accent2);font-family:"SF Mono",ui-monospace,monospace;
   }
+  .top-card{padding:20px 24px 24px;}
+  .plan-img{padding:24px 24px 0;border-bottom:none;}
+  .plan-img img{
+    display:block;width:100%;max-width:100%;height:auto;
+    border-radius:18px;border:1px solid var(--line);
+  }
+  /* Mobiel: minder dubbele padding zodat afbeelding en kaarten de breedte vullen */
+  @media (max-width:520px){
+    .wrap{padding:0 10px;}
+    .plan-img{padding:12px 2px 0;}
+    .plan-img img{border-radius:12px;}
+    section{padding-left:14px;padding-right:14px;}
+    .week{padding-left:14px;padding-right:14px;}
+    .week-plan{padding-left:14px;padding-right:14px;}
+    #countdown{font-size:64px;}
+  }
   .countdown-line{
     margin-bottom:16px;font-size:13px;color:var(--muted);text-align:center;
   }
@@ -225,20 +241,19 @@
 <body>
 <div class="wrap">
 
-  <section style="padding:24px 24px 0;border-bottom:none;">
+  <section class="plan-img">
     <img src="plan.jpg?v=2" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
-         style="display:block;width:100%;border-radius:18px;border:1px solid var(--line);"
          onerror="this.parentElement.style.display='none'">
   </section>
 
-  <section style="padding:20px 24px 0;border-bottom:none;">
+  <section class="top-card" style="border-bottom:none;padding-bottom:0;">
     <div class="mascot-card">
       <div class="mascot-face">(=^･ω･^=)</div>
       <div class="mascot-bubble" id="mascotMsg">...</div>
     </div>
   </section>
 
-  <section style="padding:20px 24px 24px;">
+  <section class="top-card">
     <div class="mascot-card">
       <div class="mascot-face">(=ↀωↀ=)✧</div>
       <div class="mascot-bubble">
