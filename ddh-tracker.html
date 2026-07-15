@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DDH Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0518;
+    --bg2:#170a2e;
+    --surface:#1c0f36;
+    --surface2:#271345;
+    --text:#ffeafb;
+    --muted:#b79bd6;
+    --accent:#ff2ea6;
+    --accent2:#4de3ff;
+    --good:#39ff9c;
+    --line:#3c2260;
+    --glow-pink:rgba(255,46,166,.5);
+    --glow-cyan:rgba(77,227,255,.4);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(255,46,166,.15), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(77,227,255,.12), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Quicksand',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding-bottom:70px;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:0 24px;}
+
+  /* HERO — cat ears signature */
+  .hero{
+    position:relative;
+    padding:64px 20px 34px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,var(--bg2),var(--bg));
+    overflow:hidden;
+  }
+  .hero::before,.hero::after{
+    content:'';position:absolute;top:14px;width:0;height:0;
+    border-left:24px solid transparent;border-right:24px solid transparent;
+    border-bottom:42px solid var(--accent);
+    filter:drop-shadow(0 0 12px var(--glow-pink));
+  }
+  .hero::before{left:calc(50% - 78px);transform:rotate(-20deg);}
+  .hero::after{left:calc(50% + 30px);transform:rotate(20deg);border-bottom-color:var(--accent2);filter:drop-shadow(0 0 12px var(--glow-cyan));}
+  .hero .eyebrow{
+    font-family:'Baloo 2',sans-serif;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+    margin-bottom:14px;position:relative;
+  }
+  .hero .days{
+    font-family:'Baloo 2',sans-serif;
+    font-size:66px;font-weight:800;line-height:1;color:var(--text);
+    letter-spacing:-0.01em;
+    text-shadow:0 0 10px var(--glow-pink), 0 0 26px var(--glow-cyan);
+  }
+  .hero .days span{font-size:18px;color:var(--muted);font-weight:600;margin-left:10px;letter-spacing:0;text-shadow:none;}
+  .hero .goal{
+    margin-top:18px;font-size:14px;color:var(--muted);
+  }
+  .hero .goal b{color:var(--accent);font-family:"SF Mono",ui-monospace,monospace;text-shadow:0 0 8px var(--glow-pink);}
+  .hero .uwu-tag{margin-top:10px;font-size:12px;color:var(--accent2);letter-spacing:.04em;}
+
+  /* WEEK STRIP */
+  .week{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 24px;border-bottom:1px solid var(--line);
+  }
+  .week .label{font-size:13px;color:var(--muted);font-weight:600;}
+  .dots{display:flex;gap:10px;}
+  .dot{width:13px;height:13px;border-radius:50%;background:var(--surface2);border:1px solid var(--line);}
+  .dot.filled{background:var(--good);border-color:var(--good);box-shadow:0 0 8px rgba(57,255,156,.6);}
+
+  /* PLAN */
+  .plan-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;}
+  .plan-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;flex-wrap:wrap;gap:6px;}
+  .plan-phase{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.02em;}
+  .plan-dates{font-size:12px;color:var(--muted);}
+  .plan-session{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--line);font-size:13px;cursor:pointer;border-radius:10px;transition:background .12s;}
+  .plan-session:hover{background:rgba(255,255,255,.04);}
+  .plan-session:first-of-type{border-top:none;}
+  .plan-session .tag{
+    flex:none;width:56px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);font-weight:600;
+  }
+  .plan-session .desc{flex:1;font-family:"SF Mono",ui-monospace,monospace;font-size:13px;}
+  .plan-session.done .desc{color:var(--good);}
+  .plan-session .check{flex:none;width:20px;text-align:center;color:var(--line);}
+  .plan-session.done .check{color:var(--good);text-shadow:0 0 6px rgba(57,255,156,.7);}
+  .plan-star{font-size:17px;margin-left:8px;filter:drop-shadow(0 0 6px gold);}
+
+  details.schedule{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;}
+  details.schedule summary{
+    list-style:none;cursor:pointer;padding:16px 20px;font-size:13px;color:var(--muted);font-weight:600;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  details.schedule summary::-webkit-details-marker{display:none;}
+  details.schedule summary .chev{transition:transform .15s;color:var(--accent2);}
+  details.schedule[open] summary .chev{transform:rotate(180deg);}
+  .week-row{
+    padding:12px 20px;border-top:1px solid var(--line);font-size:12px;
+    display:grid;grid-template-columns:auto auto 1fr;gap:12px;align-items:baseline;
+  }
+  .week-row.active{background:rgba(255,46,166,.1);}
+  .week-row .wk{color:var(--text);font-weight:700;font-family:"SF Mono",ui-monospace,monospace;}
+  .week-row .dates{color:var(--muted);white-space:nowrap;}
+  .week-row .phase{color:var(--muted);text-align:right;}
+  .week-row.active .phase{color:var(--accent);font-weight:700;}
+
+  section{padding:34px 24px;border-bottom:1px solid var(--line);}
+  h2{
+    font-family:'Baloo 2',sans-serif;
+    font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent2);
+    margin:0 0 20px;font-weight:700;display:flex;align-items:center;gap:8px;
+  }
+  h2::before{content:'🐾';font-size:13px;filter:drop-shadow(0 0 4px var(--glow-pink));}
+
+  /* FORM */
+  .field{margin-bottom:18px;}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;font-weight:600;}
+  input,select,textarea{
+    width:100%;padding:12px 14px;background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;color:var(--text);font-size:14px;font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent2);outline-offset:1px;}
+  textarea{resize:vertical;min-height:60px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .check{
+    display:flex;align-items:center;gap:12px;padding:12px 0 16px;font-size:14px;
+  }
+  .check input{width:19px;height:19px;flex:none;accent-color:var(--accent);}
+  button{
+    width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#100816;border:none;
+    border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.02em;
+    box-shadow:0 0 18px var(--glow-pink);font-family:'Baloo 2',sans-serif;
+  }
+  button:active{opacity:.88;}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);margin-top:10px;box-shadow:none;}
+
+  /* CHART */
+  .chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 14px;}
+
+  /* LOG LIST */
+  .entry{
+    padding:18px 0;border-bottom:1px solid var(--line);
+  }
+  .entry:last-child{border-bottom:none;}
+  .entry-top{display:flex;justify-content:space-between;align-items:baseline;}
+  .entry-type{
+    font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;
+    border-radius:999px;background:var(--surface2);color:var(--muted);font-weight:600;
+  }
+  .entry-type.tempo{color:var(--accent);}
+  .entry-type.lang{color:var(--accent2);}
+  .entry-date{font-size:12px;color:var(--muted);}
+  .entry-stats{
+    font-family:"SF Mono",ui-monospace,monospace;font-size:20px;margin-top:8px;
+  }
+  .entry-stats .pace{color:var(--muted);font-size:13px;margin-left:8px;}
+  .entry-flag{font-size:12px;margin-top:6px;}
+  .entry-flag.ok{color:var(--good);}
+  .entry-flag.off{color:var(--accent);}
+  .entry-comment{font-size:13px;color:var(--muted);margin-top:8px;font-style:italic;}
+  .entry-del{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:0;width:auto;text-decoration:underline;}
+  .empty{color:var(--muted);font-size:14px;text-align:center;padding:24px 0;}
+
+  /* MASCOT */
+  .mascot-card{
+    display:flex;align-items:center;gap:16px;background:var(--surface);
+    border:1px solid var(--line);border-radius:18px;padding:20px;
+  }
+  .mascot-face{
+    flex:none;width:60px;height:60px;font-size:22px;letter-spacing:-1px;
+    display:flex;align-items:center;justify-content:center;border-radius:50%;
+    background:var(--surface2);border:1px solid var(--accent);
+    box-shadow:0 0 16px var(--glow-pink);
+    animation:mascot-bob 3s ease-in-out infinite;
+  }
+  @keyframes mascot-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+  @media (prefers-reduced-motion: reduce){.mascot-face{animation:none;}}
+  .mascot-bubble{flex:1;font-size:14px;line-height:1.4;color:var(--text);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">Dwars door Hasselt · 11 okt 2026</div>
+    <div class="days" id="countdown">–<span>dagen</span></div>
+    <div class="goal">Doel: 10 km in <b>onder 60:00</b> · doeltempo 5'50"/km</div>
+    <div class="uwu-tag">✧ let's go nya~ ✧</div>
+  </div>
+
+  <div class="week">
+    <div class="label" id="weekLabel">Deze week</div>
+    <div class="dots" id="weekDots">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>Deze week volgens plan</h2>
+    <div class="plan-card" id="planThisWeek"></div>
+  </section>
+
+  <section>
+    <h2>Volledig schema</h2>
+    <details class="schedule" id="scheduleDetails">
+      <summary>Alle 13 weken bekijken <span class="chev">▾</span></summary>
+      <div id="scheduleList"></div>
+    </details>
+  </section>
+
+  <section>
+    <h2>Aanmoediging</h2>
+    <div class="mascot-card">
+      <div class="mascot-face">(=^･ω･^=)</div>
+      <div class="mascot-bubble" id="mascotMsg">...</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Training loggen</h2>
+    <div class="field">
+      <label for="f-date">Datum</label>
+      <input type="date" id="f-date">
+    </div>
+    <div class="field">
+      <label for="f-type">Type</label>
+      <select id="f-type">
+        <option value="rustig">Rustige duurloop</option>
+        <option value="tempo">Tempo / interval</option>
+        <option value="lang">Lange training</option>
+      </select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="f-duur">Duur (min)</label>
+        <input type="number" id="f-duur" min="1" step="1" placeholder="40">
+      </div>
+      <div class="field">
+        <label for="f-afstand">Afstand (km)</label>
+        <input type="number" id="f-afstand" min="0" step="0.1" placeholder="6.5">
+      </div>
+    </div>
+    <label class="check">
+      <input type="checkbox" id="f-plan" checked>
+      Volgens plan verlopen
+    </label>
+    <div class="field">
+      <label for="f-comment">Opmerking (optioneel)</label>
+      <textarea id="f-comment" placeholder="Hoe voelde het, afwijkingen, weer, ..."></textarea>
+    </div>
+    <button id="f-submit">Training opslaan</button>
+  </section>
+
+  <section>
+    <h2>Tempo-trend vs doeltempo</h2>
+    <div class="chart-wrap">
+      <canvas id="paceChart" height="180"></canvas>
+    </div>
+  </section>
+
+  <section>
+    <h2>GitHub sync (optioneel)</h2>
+    <details class="schedule" id="githubDetails">
+      <summary>Instellingen <span class="chev">▾</span></summary>
+      <div style="padding:14px 16px;">
+        <div class="field"><label for="gh-token">Personal access token</label><input type="password" id="gh-token" placeholder="ghp_..."></div>
+        <div class="field"><label for="gh-repo">Repo (owner/naam)</label><input type="text" id="gh-repo" placeholder="bert/ddh-training"></div>
+        <div class="field"><label for="gh-path">Bestandspad</label><input type="text" id="gh-path" placeholder="training-log.json"></div>
+        <div class="field"><label for="gh-branch">Branch</label><input type="text" id="gh-branch" placeholder="main"></div>
+        <button id="gh-save">Instellingen opslaan</button>
+        <div id="syncStatus" style="font-size:12px;margin-top:10px;color:var(--muted);"></div>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <h2>Logboek</h2>
+    <div id="logList"><div class="empty">Nog geen trainingen gelogd.</div></div>
+  </section>
+
+</div>
+
+<script>
+const RACE_DATE = new Date('2026-10-11T00:00:00');
+const GOAL_PACE_SEC = 5*60+50; // 5'50"/km in seconds
+const STORAGE_KEY = 'ddh-training-log';
+const GITHUB_CONFIG_KEY = 'ddh-github-config';
+const GITHUB_TRIGGER = 'punani';
+
+// Trainingsschema: week 1 start op maandag 13/7/2026
+const PLAN_START = new Date('2026-07-13T00:00:00');
+const PHASES = [
+  { name:'Basis', weeks:[1,2,3,4], sessions:{
+    rustig:"25-30' @ ~7'00\"/km",
+    tempo:"4-5x3' @ 5'10-5'20\"/km, 90s jog",
+    lang:"35-40' @ ~6'45\"/km"
+  }},
+  { name:'Opbouw', weeks:[5,6,7,8], sessions:{
+    rustig:"30-35' @ ~6'45\"/km",
+    tempo:"15-20' continu @ 5'50-6'00\"/km",
+    lang:"40', laatste 10' @ 5'50\"/km"
+  }},
+  { name:'Piek', weeks:[9,10,11], sessions:{
+    rustig:"30' @ ~6'30\"/km",
+    tempo:"20-25' continu @ 5'50\"/km (of 3x8' @ 5'40\"/km)",
+    lang:"45' (cap), opbouwend naar 5'50\"/km"
+  }},
+  { name:'Taper', weeks:[12], sessions:{
+    rustig:"-30% volume",
+    tempo:"5-6x2' @ 5'10\"/km, scherp houden",
+    lang:"30' rustig"
+  }},
+  { name:'Wedstrijdweek', weeks:[13], sessions:{
+    rustig:"20' licht + 3-4 versnellingen",
+    tempo:"rust",
+    lang:"Wedstrijd zo 11/10 — doel onder 60:00"
+  }},
+];
+const TOTAL_WEEKS = 13;
+
+function getWeekNumber(date){
+  const diffDays = Math.floor((date - PLAN_START)/86400000);
+  return Math.floor(diffDays/7) + 1;
+}
+function getWeekBounds(weekNum){
+  const start = new Date(PLAN_START);
+  start.setDate(start.getDate() + (weekNum-1)*7);
+  const end = new Date(start);
+  end.setDate(end.getDate()+6);
+  return [start, end];
+}
+function getPhaseForWeek(weekNum){
+  return PHASES.find(p => p.weeks.includes(weekNum)) || PHASES[PHASES.length-1];
+}
+function fmtShort(d){
+  return d.toLocaleDateString('nl-BE',{day:'2-digit',month:'2-digit'});
+}
+
+let entries = [];
+
+function paceSecPerKm(duurMin, afstandKm){
+  if(!afstandKm) return null;
+  return (duurMin*60)/afstandKm;
+}
+function fmtPace(sec){
+  if(sec==null || isNaN(sec)) return '–';
+  const m = Math.floor(sec/60), s = Math.round(sec%60);
+  return m+"'"+String(s).padStart(2,'0')+'"';
+}
+function fmtDate(d){
+  const dt = new Date(d+'T00:00:00');
+  return dt.toLocaleDateString('nl-BE',{day:'2-digit',month:'short'});
+}
+function isoWeekStart(d){
+  const dt = new Date(d);
+  const day = (dt.getDay()+6)%7; // maandag=0
+  dt.setDate(dt.getDate()-day);
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+
+function renderCountdown(){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diffMs = RACE_DATE - today;
+  const days = Math.max(0, Math.ceil(diffMs/86400000));
+  document.getElementById('countdown').innerHTML = days+'<span>dagen</span>';
+}
+
+function renderWeek(){
+  const startOfWeek = isoWeekStart(new Date());
+  const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(endOfWeek.getDate()+7);
+  const count = entries.filter(e=>{
+    const d = new Date(e.date+'T00:00:00');
+    return d>=startOfWeek && d<endOfWeek;
+  }).length;
+  const dotsEl = document.getElementById('weekDots');
+  dotsEl.innerHTML = '';
+  for(let i=0;i<3;i++){
+    const dot = document.createElement('div');
+    dot.className = 'dot'+(i<count?' filled':'');
+    dotsEl.appendChild(dot);
+  }
+  document.getElementById('weekLabel').textContent = `Deze week (${count}/3)`;
+}
+
+function renderList(){
+  const listEl = document.getElementById('logList');
+  if(entries.length===0){
+    listEl.innerHTML = '<div class="empty">Nog geen trainingen gelogd.</div>';
+    return;
+  }
+  const sorted = [...entries].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  listEl.innerHTML = sorted.map(e=>{
+    const pace = paceSecPerKm(e.duur, e.afstand);
+    const typeLabel = {rustig:'Rustig', tempo:'Tempo', lang:'Lang'}[e.type];
+    return `
+    <div class="entry">
+      <div class="entry-top">
+        <span class="entry-type ${e.type}">${typeLabel}</span>
+        <span class="entry-date">${fmtDate(e.date)}</span>
+      </div>
+      <div class="entry-stats">${e.afstand} km <span class="pace">· ${e.duur}' · ${fmtPace(pace)}/km</span></div>
+      <div class="entry-flag ${e.plan?'ok':'off'}">${e.plan?'✓ Volgens plan':'✗ Afgeweken van plan'}</div>
+      ${e.comment ? `<div class="entry-comment">"${e.comment}"</div>` : ''}
+      <button class="entry-del" data-id="${e.id}">verwijderen</button>
+    </div>`;
+  }).join('');
+
+  listEl.querySelectorAll('.entry-del').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      entries = entries.filter(e=>e.id!==btn.dataset.id);
+      await save();
+      renderAll();
+    });
+  });
+}
+
+let chart;
+function renderChart(){
+  const sorted = [...entries].sort((a,b)=> new Date(a.date)-new Date(b.date));
+  const labels = sorted.map(e=>fmtDate(e.date));
+  const colors = {rustig:'#8b8f98', tempo:'#e5484d', lang:'#e8b64c'};
+  const data = sorted.map(e=> paceSecPerKm(e.duur,e.afstand));
+  const pointColors = sorted.map(e=>colors[e.type]);
+
+  const ctx = document.getElementById('paceChart').getContext('2d');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'Tempo',
+          data,
+          borderColor:'#f2efea',
+          backgroundColor:'transparent',
+          pointBackgroundColor:pointColors,
+          pointRadius:5,
+          tension:0.25,
+        },
+        {
+          label:'Doeltempo',
+          data:labels.map(()=>GOAL_PACE_SEC),
+          borderColor:'#4cae6d',
+          borderDash:[6,4],
+          pointRadius:0,
+          borderWidth:1.5,
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{labels:{color:'#8b8f98', boxWidth:12, font:{size:11}}},
+      },
+      scales:{
+        x:{ticks:{color:'#8b8f98',font:{size:10}}, grid:{color:'#2c2e35'}},
+        y:{
+          reverse:true,
+          ticks:{color:'#8b8f98',font:{size:10}, callback:v=>fmtPace(v)},
+          grid:{color:'#2c2e35'}
+        }
+      }
+    }
+  });
+}
+
+function renderPlanThisWeek(){
+  const wk = getWeekNumber(new Date());
+  const clampedWk = Math.min(Math.max(wk,1), TOTAL_WEEKS);
+  const [start,end] = getWeekBounds(clampedWk);
+  const endExclusive = new Date(end); endExclusive.setDate(endExclusive.getDate()+1);
+  const phase = getPhaseForWeek(clampedWk);
+  const el = document.getElementById('planThisWeek');
+  const outOfRange = wk<1 || wk>TOTAL_WEEKS;
+
+  const doneTypes = new Set(
+    entries.filter(e=>{
+      const d = new Date(e.date+'T00:00:00');
+      return d>=start && d<endExclusive;
+    }).map(e=>e.type)
+  );
+  const allDone = ['rustig','tempo','lang'].every(t=>doneTypes.has(t));
+
+  const row = (type,label)=>{
+    const isDone = doneTypes.has(type);
+    return `<div class="plan-session${isDone?' done':''}" data-type="${type}">
+      <span class="check">${isDone?'✓':'○'}</span>
+      <span class="tag">${label}</span>
+      <span class="desc">${phase.sessions[type]}</span>
+    </div>`;
+  };
+
+  el.innerHTML = `
+    <div class="plan-head">
+      <span class="plan-phase">Week ${clampedWk} · ${phase.name}${outOfRange?' (dichtstbijzijnde)':''}${allDone?'<span class="plan-star">🌟</span>':''}</span>
+      <span class="plan-dates">${fmtShort(start)} – ${fmtShort(end)}</span>
+    </div>
+    ${row('rustig','Rustig')}
+    ${row('tempo','Tempo')}
+    ${row('lang','Lang')}
+  `;
+
+  el.querySelectorAll('.plan-session').forEach(rowEl=>{
+    rowEl.addEventListener('click', ()=>{
+      document.getElementById('f-type').value = rowEl.dataset.type;
+      const duurField = document.getElementById('f-duur');
+      duurField.focus();
+      duurField.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+  });
+}
+
+function renderFullSchedule(){
+  const currentWk = getWeekNumber(new Date());
+  const listEl = document.getElementById('scheduleList');
+  let html = '';
+  for(let w=1; w<=TOTAL_WEEKS; w++){
+    const [start,end] = getWeekBounds(w);
+    const phase = getPhaseForWeek(w);
+    const active = w===currentWk;
+    html += `
+      <div class="week-row${active?' active':''}">
+        <span class="wk">W${w}</span>
+        <span class="dates">${fmtShort(start)}–${fmtShort(end)}</span>
+        <span class="phase">${phase.name}</span>
+      </div>`;
+  }
+  listEl.innerHTML = html;
+  // open automatically the eerste keer zodat de huidige week zichtbaar is
+  if(!listEl.dataset.opened){
+    document.getElementById('scheduleDetails').open = true;
+    listEl.dataset.opened = '1';
+  }
+}
+
+const ENCOURAGEMENT = {
+  raceWeek:[
+    "Bijna daar! Laatste loodjes richting DDH 💫",
+    "Rust nu goed uit, je hebt hard getraind. Vertrouw op jezelf, nya~",
+    "DDH komt eraan — jij bent er klaar voor! 🐾✨"
+  ],
+  allDone:[
+    "Drie op drie deze week?? Pure perfectie, nya~ 🌟",
+    "Kampioen! Alle trainingen gehaald deze week 💕",
+    "Zo hoort het! Volledig op schema, uwu ✨"
+  ],
+  zero:[
+    "Nog niks gelogd deze week... kom op, ik geloof in je! 🐾",
+    "Hup hup, tijd om die loopschoenen aan te doen, nya~",
+    "De bank is gezellig maar DDH wacht niet, uwu~"
+  ],
+  partial:[
+    "Lekker bezig, nog eventjes volhouden~ 🐾",
+    "Goed zo! Nog een paar trainingen te gaan deze week 💪",
+    "Op koers, blijf doorzetten nya~"
+  ]
+};
+function pickEncouragement(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const daysLeft = Math.max(0, Math.ceil((RACE_DATE-today)/86400000));
+  const wk = Math.min(Math.max(getWeekNumber(new Date()),1), TOTAL_WEEKS);
+  const [start,end] = getWeekBounds(wk);
+  const endExclusive = new Date(end); endExclusive.setDate(endExclusive.getDate()+1);
+  const doneTypes = new Set(
+    entries.filter(e=>{
+      const d = new Date(e.date+'T00:00:00');
+      return d>=start && d<endExclusive;
+    }).map(e=>e.type)
+  );
+  const allDone = ['rustig','tempo','lang'].every(t=>doneTypes.has(t));
+  let pool;
+  if(daysLeft<=3) pool = ENCOURAGEMENT.raceWeek;
+  else if(allDone) pool = ENCOURAGEMENT.allDone;
+  else if(doneTypes.size===0) pool = ENCOURAGEMENT.zero;
+  else pool = ENCOURAGEMENT.partial;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function renderMascot(){
+  const el = document.getElementById('mascotMsg');
+  if(el) el.textContent = pickEncouragement();
+}
+
+function renderAll(){
+  renderCountdown();
+  renderWeek();
+  renderPlanThisWeek();
+  renderFullSchedule();
+  renderMascot();
+  renderList();
+  renderChart();
+}
+
+async function load(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    entries = res ? JSON.parse(res.value) : [];
+  }catch(e){
+    entries = [];
+  }
+}
+async function save(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+  }catch(e){
+    console.error('Opslaan mislukt', e);
+  }
+}
+
+async function loadGithubConfig(){
+  try{
+    const res = await window.storage.get(GITHUB_CONFIG_KEY, false);
+    return res ? JSON.parse(res.value) : null;
+  }catch(e){
+    return null;
+  }
+}
+async function saveGithubConfig(cfg){
+  try{
+    await window.storage.set(GITHUB_CONFIG_KEY, JSON.stringify(cfg), false);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+function setSyncStatus(msg, isError){
+  const el = document.getElementById('syncStatus');
+  if(el){ el.textContent = msg; el.style.color = isError ? 'var(--accent)' : 'var(--good)'; }
+}
+async function populateGithubForm(){
+  const cfg = await loadGithubConfig();
+  if(!cfg) return;
+  document.getElementById('gh-token').value = cfg.token || '';
+  document.getElementById('gh-repo').value = cfg.repo || '';
+  document.getElementById('gh-path').value = cfg.path || '';
+  document.getElementById('gh-branch').value = cfg.branch || 'main';
+}
+async function pushToGithub(){
+  const cfg = await loadGithubConfig();
+  if(!cfg || !cfg.token || !cfg.repo || !cfg.path){
+    setSyncStatus('GitHub niet geconfigureerd — vul eerst de instellingen in.', true);
+    return;
+  }
+  setSyncStatus('Bezig met synchroniseren...', false);
+  const branch = cfg.branch || 'main';
+  const apiBase = `https://api.github.com/repos/${cfg.repo}/contents/${cfg.path}`;
+  try{
+    let sha;
+    const getRes = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, {
+      headers:{ Authorization:`Bearer ${cfg.token}`, Accept:'application/vnd.github+json' }
+    });
+    if(getRes.ok){
+      const getData = await getRes.json();
+      sha = getData.sha;
+    }else if(getRes.status !== 404){
+      const err = await getRes.json().catch(()=>({}));
+      setSyncStatus(`GitHub-fout bij ophalen: ${err.message || getRes.status}`, true);
+      return;
+    }
+
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(entries, null, 2))));
+    const body = { message:`Update training log (${new Date().toISOString()})`, content, branch };
+    if(sha) body.sha = sha;
+
+    const putRes = await fetch(apiBase, {
+      method:'PUT',
+      headers:{
+        Authorization:`Bearer ${cfg.token}`,
+        Accept:'application/vnd.github+json',
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    if(putRes.ok){
+      setSyncStatus('✓ Gesynchroniseerd met GitHub', false);
+    }else{
+      const err = await putRes.json().catch(()=>({}));
+      setSyncStatus(`GitHub-fout: ${err.message || putRes.status}`, true);
+    }
+  }catch(e){
+    setSyncStatus('Netwerkfout bij synchroniseren met GitHub.', true);
+  }
+}
+
+document.getElementById('gh-save').addEventListener('click', async ()=>{
+  const cfg = {
+    token: document.getElementById('gh-token').value.trim(),
+    repo: document.getElementById('gh-repo').value.trim(),
+    path: document.getElementById('gh-path').value.trim(),
+    branch: document.getElementById('gh-branch').value.trim() || 'main'
+  };
+  const ok = await saveGithubConfig(cfg);
+  setSyncStatus(ok ? 'Instellingen opgeslagen.' : 'Opslaan mislukt.', !ok);
+});
+
+document.getElementById('f-submit').addEventListener('click', async ()=>{
+  const date = document.getElementById('f-date').value;
+  const type = document.getElementById('f-type').value;
+  const duur = parseFloat(document.getElementById('f-duur').value);
+  const afstand = parseFloat(document.getElementById('f-afstand').value);
+  const plan = document.getElementById('f-plan').checked;
+  const comment = document.getElementById('f-comment').value.trim();
+
+  if(!date || !duur || !afstand){
+    alert('Vul minstens datum, duur en afstand in.');
+    return;
+  }
+
+  entries.push({
+    id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    date, type, duur, afstand, plan, comment
+  });
+  await save();
+
+  document.getElementById('f-duur').value='';
+  document.getElementById('f-afstand').value='';
+  document.getElementById('f-comment').value='';
+  document.getElementById('f-plan').checked=true;
+
+  renderAll();
+
+  if(comment.toLowerCase().includes(GITHUB_TRIGGER)){
+    pushToGithub();
+  }
+});
+
+(async ()=>{
+  document.getElementById('f-date').valueAsDate = new Date();
+  await load();
+  await populateGithubForm();
+  renderAll();
+})();
+</script>
+</body>
+</html>
