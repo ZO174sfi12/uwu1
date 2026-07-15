@@ -81,6 +81,14 @@
     background:rgba(77,227,255,.08);border:1px solid var(--accent2);border-radius:12px;
     color:var(--accent2);font-family:"SF Mono",ui-monospace,monospace;
   }
+  .form-msg{
+    display:none;margin-top:12px;padding:11px 14px;font-size:13px;border-radius:12px;
+    background:rgba(255,46,166,.08);border:1px solid var(--accent);color:var(--accent);font-weight:600;
+  }
+  .explain{padding:2px 20px 16px;font-size:13px;color:var(--muted);line-height:1.65;}
+  .explain p{margin:0 0 12px;}
+  .explain b{color:var(--text);}
+  .explain .ph{color:var(--accent2);font-weight:700;}
   .week .label{font-size:13px;color:var(--muted);font-weight:600;}
   .dots{display:flex;gap:10px;}
   .dot{width:13px;height:13px;border-radius:50%;background:var(--surface2);border:1px solid var(--line);}
@@ -121,6 +129,10 @@
   .week-row .dates{color:var(--muted);white-space:nowrap;}
   .week-row .phase{color:var(--muted);text-align:right;}
   .week-row.active .phase{color:var(--accent);font-weight:700;}
+  .week-row .sess{
+    grid-column:1/-1;margin-top:4px;color:var(--muted);
+    font-family:"SF Mono",ui-monospace,monospace;font-size:11px;line-height:1.7;
+  }
 
   section{padding:34px 24px;border-bottom:1px solid var(--line);}
   h2{
@@ -199,6 +211,22 @@
 <body>
 <div class="wrap">
 
+  <section style="padding:24px 24px 0;border-bottom:none;">
+    <img src="plan.png" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
+         style="display:block;width:100%;border-radius:18px;border:1px solid var(--line);"
+         onerror="this.parentElement.style.display='none'">
+  </section>
+
+  <section style="padding:20px 24px 24px;">
+    <div class="mascot-card">
+      <div class="mascot-face">(=^･ω･^=)</div>
+      <div class="mascot-bubble">
+        <b>Welkom Steven!</b> 🐾<br>
+        <span id="setupHint"></span>Loggen kan enkel met het wachtwoord in het opmerkingsveld — je weet welk 😉
+      </div>
+    </div>
+  </section>
+
   <div class="hero">
     <div class="eyebrow">Dwars door Hasselt · 11 okt 2026</div>
     <div class="days" id="countdown">–<span>dagen</span></div>
@@ -215,6 +243,25 @@
   <div class="week-plan">
     <div class="plan-card" id="planThisWeek"></div>
   </div>
+
+  <section>
+    <h2>Over het schema</h2>
+    <details class="schedule">
+      <summary>Waarom dit plan werkt <span class="chev">▾</span></summary>
+      <div class="explain">
+        <p><b>Drie sessies per week, elk met een eigen rol.</b> De <span class="ph">rustige duurloop</span> bouwt je aerobe motor en laat je herstellen van de zwaardere dagen. De <span class="ph">tempotraining</span> went je lichaam aan het wedstrijdtempo en sneller. De <span class="ph">lange training</span> rekt je uithouding op zodat 10 km "kort" aanvoelt. Samen dekken ze precies wat je nodig hebt om onder het uur te lopen.</p>
+        <p><b>Basis (w1-4):</b> volume rustig opbouwen. De intervallen gaan bewust sneller dan doeltempo (5'10-5'20"/km): korte snelle blokken maken 5'50 later "traag" aanvoelen.</p>
+        <p><b>Opbouw (w5-8):</b> de tempoblokken worden langer en schuiven naar doeltempo. De lange loop eindigt steeds vaker op 5'50 — leren finishen op wedstrijdtempo terwijl je moe bent.</p>
+        <p><b>Piek (w9-11):</b> de zwaarste weken. 20-25' onafgebroken aan doeltempo is de generale repetitie; wie dat kan, loopt de wedstrijd uit onder het uur.</p>
+        <p><b>Taper (w12) &amp; wedstrijdweek:</b> −30% volume. Frisheid levert nu meer op dan extra conditie; korte versnellingen houden de benen scherp zonder vermoeidheid.</p>
+        <p><b>Waarom 5'50"/km?</b> Dat is ≈ 58'20 op 10 km — ruim anderhalve minuut buffer op het doel van 60:00, voor een trage start, bochten of een mindere dag.</p>
+      </div>
+    </details>
+    <details class="schedule" style="margin-top:14px;">
+      <summary>Volledig schema, week per week <span class="chev">▾</span></summary>
+      <div id="scheduleList"></div>
+    </details>
+  </section>
 
   <section id="inputSection">
     <h2>Training loggen</h2>
@@ -250,6 +297,7 @@
       <textarea id="f-comment" placeholder="Hoe voelde het, afwijkingen, weer, ..."></textarea>
     </div>
     <button id="f-submit">Training opslaan</button>
+    <div class="form-msg" id="formMsg"></div>
   </section>
 
   <section>
@@ -287,12 +335,6 @@
     </details>
   </section>
 
-  <section>
-    <h2>Volledig plan</h2>
-    <img src="plan.png" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
-         style="display:block;width:100%;border-radius:18px;border:1px solid var(--line);"
-         onerror="this.parentElement.style.display='none'">
-  </section>
 
 </div>
 
@@ -306,35 +348,27 @@ const SYNC_FLAG_KEY = 'ddh-sync-enabled';
 
 // Trainingsschema: week 1 start op maandag 13/7/2026
 const PLAN_START = new Date('2026-07-13T00:00:00');
-// desc = wat het plan zegt; duur/afstand = realistische prefill voor de hele sessie (incl. in-/uitlopen)
-const PHASES = [
-  { name:'Basis', weeks:[1,2,3,4], sessions:{
-    rustig:{desc:"25-30' @ ~7'00\"/km", duur:30, afstand:4.3},
-    tempo:{desc:"4-5x3' @ 5'10-5'20\"/km, 90s jog", duur:35, afstand:5.8},
-    lang:{desc:"35-40' @ ~6'45\"/km", duur:40, afstand:5.9}
-  }},
-  { name:'Opbouw', weeks:[5,6,7,8], sessions:{
-    rustig:{desc:"30-35' @ ~6'45\"/km", duur:35, afstand:5.2},
-    tempo:{desc:"15-20' continu @ 5'50-6'00\"/km", duur:40, afstand:6.3},
-    lang:{desc:"40', laatste 10' @ 5'50\"/km", duur:40, afstand:6.1}
-  }},
-  { name:'Piek', weeks:[9,10,11], sessions:{
-    rustig:{desc:"30' @ ~6'30\"/km", duur:30, afstand:4.6},
-    tempo:{desc:"20-25' continu @ 5'50\"/km (of 3x8' @ 5'40\"/km)", duur:45, afstand:7.2},
-    lang:{desc:"45' (cap), opbouwend naar 5'50\"/km", duur:45, afstand:7.1}
-  }},
-  { name:'Taper', weeks:[12], sessions:{
-    rustig:{desc:"-30% volume", duur:20, afstand:3.0},
-    tempo:{desc:"5-6x2' @ 5'10\"/km, scherp houden", duur:30, afstand:4.8},
-    lang:{desc:"30' rustig", duur:30, afstand:4.3}
-  }},
-  { name:'Wedstrijdweek', weeks:[13], sessions:{
-    rustig:{desc:"20' licht + 3-4 versnellingen", duur:20, afstand:2.9},
-    tempo:{desc:"rust", duur:null, afstand:null},
-    lang:{desc:"Wedstrijd zo 11/10 — doel onder 60:00", duur:60, afstand:10}
-  }},
+// Per-week schema: elke week iets sneller en/of langer, max 45' per sessie.
+// desc = wat het plan zegt; duur/afstand = prefill voor de hele sessie (incl. in-/uitlopen).
+const WEEKS = [
+  /* W1  */ {phase:'Basis', rustig:{desc:"25' @ 7'10\"/km", duur:25, afstand:3.5}, tempo:{desc:"4x3' @ 5'20\"/km, 90s jog", duur:30, afstand:4.9}, lang:{desc:"30' @ 6'50\"/km", duur:30, afstand:4.4}},
+  /* W2  */ {phase:'Basis', rustig:{desc:"28' @ 7'05\"/km", duur:28, afstand:4.0}, tempo:{desc:"5x3' @ 5'20\"/km, 90s jog", duur:32, afstand:5.3}, lang:{desc:"33' @ 6'45\"/km", duur:33, afstand:4.9}},
+  /* W3  */ {phase:'Basis', rustig:{desc:"30' @ 7'00\"/km", duur:30, afstand:4.3}, tempo:{desc:"5x3' @ 5'15\"/km, 90s jog", duur:33, afstand:5.5}, lang:{desc:"36' @ 6'45\"/km", duur:36, afstand:5.3}},
+  /* W4  */ {phase:'Basis', rustig:{desc:"30' @ 6'55\"/km", duur:30, afstand:4.3}, tempo:{desc:"6x3' @ 5'15\"/km, 75s jog", duur:35, afstand:5.9}, lang:{desc:"38' @ 6'40\"/km", duur:38, afstand:5.7}},
+  /* W5  */ {phase:'Opbouw', rustig:{desc:"32' @ 6'50\"/km", duur:32, afstand:4.7}, tempo:{desc:"12' continu @ 6'00\"/km + in-/uitlopen", duur:35, afstand:5.7}, lang:{desc:"40' @ 6'35\"/km, laatste 5' @ 5'50\"", duur:40, afstand:6.1}},
+  /* W6  */ {phase:'Opbouw', rustig:{desc:"33' @ 6'45\"/km", duur:33, afstand:4.9}, tempo:{desc:"15' continu @ 5'55\"/km + in-/uitlopen", duur:38, afstand:6.2}, lang:{desc:"40' @ 6'30\"/km, laatste 8' @ 5'50\"", duur:40, afstand:6.2}},
+  /* W7  */ {phase:'Opbouw', rustig:{desc:"35' @ 6'45\"/km", duur:35, afstand:5.2}, tempo:{desc:"18' continu @ 5'55\"/km + in-/uitlopen", duur:40, afstand:6.6}, lang:{desc:"42' @ 6'25\"/km, laatste 10' @ 5'50\"", duur:42, afstand:6.6}},
+  /* W8  */ {phase:'Opbouw', rustig:{desc:"35' @ 6'40\"/km", duur:35, afstand:5.3}, tempo:{desc:"20' continu @ 5'50\"/km + in-/uitlopen", duur:40, afstand:6.7}, lang:{desc:"44' @ 6'20\"/km, laatste 10' @ 5'50\"", duur:44, afstand:7.0}},
+  /* W9  */ {phase:'Piek', rustig:{desc:"30' @ 6'35\"/km", duur:30, afstand:4.6}, tempo:{desc:"20' continu @ 5'50\"/km (of 3x8' @ 5'40\")", duur:42, afstand:7.0}, lang:{desc:"45' @ 6'15\"/km, laatste 12' @ 5'50\"", duur:45, afstand:7.2}},
+  /* W10 */ {phase:'Piek', rustig:{desc:"32' @ 6'30\"/km", duur:32, afstand:4.9}, tempo:{desc:"22' continu @ 5'50\"/km", duur:43, afstand:7.2}, lang:{desc:"45' @ 6'10\"/km, laatste 15' @ 5'50\"", duur:45, afstand:7.3}},
+  /* W11 */ {phase:'Piek', rustig:{desc:"30' @ 6'30\"/km, fris blijven", duur:30, afstand:4.6}, tempo:{desc:"25' continu @ 5'50\"/km — generale repetitie", duur:45, afstand:7.6}, lang:{desc:"45' opbouwend naar 5'50\"/km", duur:45, afstand:7.5}},
+  /* W12 */ {phase:'Taper', rustig:{desc:"25' @ 6'45\"/km (taper)", duur:25, afstand:3.7}, tempo:{desc:"5x2' @ 5'10\"/km, scherp houden", duur:30, afstand:4.8}, lang:{desc:"30' heel rustig", duur:30, afstand:4.4}},
+  /* W13 */ {phase:'Wedstrijdweek', rustig:{desc:"20' licht + 4 versnellingen", duur:20, afstand:3.0}, tempo:{desc:"rust", duur:null, afstand:null}, lang:{desc:"Wedstrijd zo 11/10 — 10 km onder 60:00!", duur:60, afstand:10}},
 ];
-const TOTAL_WEEKS = 13;
+const TOTAL_WEEKS = WEEKS.length;
+function getWeekData(weekNum){
+  return WEEKS[Math.min(Math.max(weekNum,1), TOTAL_WEEKS)-1];
+}
 
 function getWeekNumber(date){
   const diffDays = Math.floor((date - PLAN_START)/86400000);
@@ -346,9 +380,6 @@ function getWeekBounds(weekNum){
   const end = new Date(start);
   end.setDate(end.getDate()+6);
   return [start, end];
-}
-function getPhaseForWeek(weekNum){
-  return PHASES.find(p => p.weeks.includes(weekNum)) || PHASES[PHASES.length-1];
 }
 function fmtShort(d){
   return d.toLocaleDateString('nl-BE',{day:'2-digit',month:'2-digit'});
@@ -421,17 +452,26 @@ function renderList(){
       <div class="entry-stats">${e.afstand} km <span class="pace">· ${e.duur}' · ${fmtPace(pace)}/km</span></div>
       <div class="entry-flag ${e.plan?'ok':'off'}">${e.plan?'✓ Volgens plan':'✗ Afgeweken van plan'}</div>
       ${e.comment ? `<div class="entry-comment">"${e.comment}"</div>` : ''}
-      <button class="entry-del" data-id="${e.id}">verwijderen</button>
+      ${isUnlocked() ? `<button class="entry-del" data-id="${e.id}">verwijderen</button>` : ''}
     </div>`;
   }).join('');
 
   listEl.querySelectorAll('.entry-del').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
+      if(!isUnlocked()){
+        showFormMsg('🔒 Wachtwoord vereist om te verwijderen.');
+        return;
+      }
       entries = entries.filter(e=>e.id!==btn.dataset.id);
       await save();
       renderAll();
     });
   });
+}
+
+// Verwijderen kan pas nadat het wachtwoord deze sessie één keer gebruikt is
+function isUnlocked(){
+  return sessionStorage.getItem('ddh-unlocked') === '1';
 }
 
 let chart;
@@ -490,7 +530,7 @@ function renderPlanThisWeek(){
   const clampedWk = Math.min(Math.max(wk,1), TOTAL_WEEKS);
   const [start,end] = getWeekBounds(clampedWk);
   const endExclusive = new Date(end); endExclusive.setDate(endExclusive.getDate()+1);
-  const phase = getPhaseForWeek(clampedWk);
+  const wkData = getWeekData(clampedWk);
   const el = document.getElementById('planThisWeek');
   const outOfRange = wk<1 || wk>TOTAL_WEEKS;
 
@@ -507,13 +547,13 @@ function renderPlanThisWeek(){
     return `<div class="plan-session${isDone?' done':''}" data-type="${type}">
       <span class="check">${isDone?'✓':'○'}</span>
       <span class="tag">${label}</span>
-      <span class="desc">${phase.sessions[type].desc}</span>
+      <span class="desc">${wkData[type].desc}</span>
     </div>`;
   };
 
   el.innerHTML = `
     <div class="plan-head">
-      <span class="plan-phase">Week ${clampedWk} · ${phase.name}${outOfRange?' (dichtstbijzijnde)':''}${allDone?'<span class="plan-star">🌟</span>':''}</span>
+      <span class="plan-phase">Week ${clampedWk} · ${wkData.phase}${outOfRange?' (dichtstbijzijnde)':''}${allDone?'<span class="plan-star">🌟</span>':''}</span>
       <span class="plan-dates">${fmtShort(start)} – ${fmtShort(end)}</span>
     </div>
     ${row('rustig','Rustig')}
@@ -530,8 +570,8 @@ function renderPlanThisWeek(){
 // In het ideale geval hoef je enkel nog het wachtwoord te typen en op te slaan.
 function prefillTraining(type){
   const wk = Math.min(Math.max(getWeekNumber(new Date()),1), TOTAL_WEEKS);
-  const phase = getPhaseForWeek(wk);
-  const s = phase.sessions[type];
+  const wkData = getWeekData(wk);
+  const s = wkData[type];
 
   document.getElementById('f-date').valueAsDate = new Date();
   document.getElementById('f-type').value = type;
@@ -540,11 +580,28 @@ function prefillTraining(type){
   document.getElementById('f-plan').checked = true;
 
   const hint = document.getElementById('planHint');
-  hint.textContent = `📋 Week ${wk} · ${phase.name}: ${s.desc}`;
+  hint.textContent = `📋 Week ${wk} · ${wkData.phase}: ${s.desc}`;
   hint.style.display = 'block';
 
   document.getElementById('inputSection').scrollIntoView({behavior:'smooth'});
   setTimeout(()=>document.getElementById('f-comment').focus({preventScroll:true}), 400);
+}
+
+function renderFullSchedule(){
+  const currentWk = getWeekNumber(new Date());
+  let html = '';
+  for(let w=1; w<=TOTAL_WEEKS; w++){
+    const [start,end] = getWeekBounds(w);
+    const d = WEEKS[w-1];
+    html += `
+      <div class="week-row${w===currentWk?' active':''}">
+        <span class="wk">W${w}</span>
+        <span class="dates">${fmtShort(start)}–${fmtShort(end)}</span>
+        <span class="phase">${d.phase}</span>
+        <div class="sess">R · ${d.rustig.desc}<br>T · ${d.tempo.desc}<br>L · ${d.lang.desc}</div>
+      </div>`;
+  }
+  document.getElementById('scheduleList').innerHTML = html;
 }
 
 const ENCOURAGEMENT = {
@@ -598,6 +655,7 @@ function renderAll(){
   renderCountdown();
   renderWeek();
   renderPlanThisWeek();
+  renderFullSchedule();
   renderMascot();
   renderList();
   renderChart();
@@ -636,6 +694,14 @@ async function saveGithubConfig(cfg){
   }catch(e){
     return false;
   }
+}
+function showFormMsg(msg){
+  const el = document.getElementById('formMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  clearTimeout(showFormMsg._t);
+  showFormMsg._t = setTimeout(()=>{ el.style.display='none'; }, 6000);
 }
 function setSyncStatus(msg, isError){
   const el = document.getElementById('syncStatus');
@@ -739,20 +805,31 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
 
   // Wachtwoord is verplicht om te kunnen loggen; wordt niet mee opgeslagen
   if(!comment.toLowerCase().includes(GITHUB_TRIGGER)){
-    alert('Wachtwoord vereist: typ het in het opmerkingsveld om te loggen.');
+    showFormMsg('🔒 Wachtwoord vereist: typ het in het opmerkingsveld om te loggen.');
     return;
   }
   localStorage.setItem(SYNC_FLAG_KEY, '1');
+  sessionStorage.setItem('ddh-unlocked', '1'); // ontgrendelt o.a. verwijderen voor deze sessie
   comment = comment.replace(new RegExp(GITHUB_TRIGGER, 'ig'), '').replace(/\s{2,}/g,' ').trim();
-  // Alleen het wachtwoord getypt? Dan enkel synchroniseren, geen entry aanmaken.
+  // Wachtwoord + "clear": logboek volledig leegmaken (lokaal + GitHub)
+  if(!duur && !afstand && comment.toLowerCase()==='clear'){
+    entries = [];
+    document.getElementById('f-comment').value='';
+    await save();
+    renderAll();
+    showFormMsg('🧹 Logboek geleegd en gesynchroniseerd.');
+    return;
+  }
+  // Alleen het wachtwoord getypt? Dan enkel synchroniseren + ontgrendelen, geen entry aanmaken.
   if(!duur && !afstand && !comment){
     document.getElementById('f-comment').value='';
     pushToGithub();
+    renderAll(); // toont o.a. de verwijderknoppen na ontgrendeling
     return;
   }
 
   if(!date || !duur || !afstand){
-    alert('Vul minstens datum, duur en afstand in.');
+    showFormMsg('Vul minstens datum, duur en afstand in.');
     return;
   }
 
@@ -767,6 +844,7 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
   document.getElementById('f-comment').value='';
   document.getElementById('f-plan').checked=true;
   document.getElementById('planHint').style.display='none';
+  document.getElementById('formMsg').style.display='none';
 
   renderAll();
 });
@@ -775,6 +853,12 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
   document.getElementById('f-date').valueAsDate = new Date();
   await load();
   await populateGithubForm();
+  // Welkomsthint: toon token-instructie zolang er geen token is ingesteld
+  const cfg = await loadGithubConfig();
+  if(!cfg || !cfg.token){
+    document.getElementById('setupHint').innerHTML =
+      'Voeg eerst eenmalig je GitHub-token toe bij <b>GitHub sync</b> (onderaan) en klik op "Instellingen opslaan". ';
+  }
   renderAll();
   pullFromGithub(); // haalt op de achtergrond het log op van GitHub en merget nieuwe entries
 })();
