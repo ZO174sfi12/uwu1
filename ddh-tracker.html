@@ -81,6 +81,18 @@
     background:rgba(77,227,255,.08);border:1px solid var(--accent2);border-radius:12px;
     color:var(--accent2);font-family:"SF Mono",ui-monospace,monospace;
   }
+  .countdown-line{
+    margin-bottom:14px;font-size:13px;color:var(--muted);
+  }
+  .countdown-line b{
+    color:var(--accent);font-family:'Baloo 2',sans-serif;font-size:16px;
+    text-shadow:0 0 8px var(--glow-pink);
+  }
+  .mini-btn{
+    width:auto;display:inline-block;margin-top:10px;padding:6px 14px;font-size:12px;
+    background:var(--surface2);border:1px solid var(--line);color:var(--accent2);
+    border-radius:999px;box-shadow:none;font-family:'Quicksand',sans-serif;font-weight:600;
+  }
   .form-msg{
     display:none;margin-top:12px;padding:11px 14px;font-size:13px;border-radius:12px;
     background:rgba(255,46,166,.08);border:1px solid var(--accent);color:var(--accent);font-weight:600;
@@ -197,8 +209,8 @@
     border:1px solid var(--line);border-radius:18px;padding:20px;
   }
   .mascot-face{
-    flex:none;width:60px;height:60px;font-size:22px;letter-spacing:-1px;
-    display:flex;align-items:center;justify-content:center;border-radius:50%;
+    flex:none;width:auto;min-width:60px;height:48px;padding:0 14px;font-size:17px;letter-spacing:-1px;
+    display:flex;align-items:center;justify-content:center;border-radius:999px;
     background:var(--surface2);border:1px solid var(--accent);
     box-shadow:0 0 16px var(--glow-pink);
     animation:mascot-bob 3s ease-in-out infinite;
@@ -212,9 +224,16 @@
 <div class="wrap">
 
   <section style="padding:24px 24px 0;border-bottom:none;">
-    <img src="plan.png" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
+    <img src="plan.jpg?v=2" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
          style="display:block;width:100%;border-radius:18px;border:1px solid var(--line);"
          onerror="this.parentElement.style.display='none'">
+  </section>
+
+  <section style="padding:20px 24px 0;border-bottom:none;">
+    <div class="mascot-card">
+      <div class="mascot-face">(=^･ω･^=)</div>
+      <div class="mascot-bubble" id="mascotMsg">...</div>
+    </div>
   </section>
 
   <section style="padding:20px 24px 24px;">
@@ -222,17 +241,11 @@
       <div class="mascot-face">(=^･ω･^=)</div>
       <div class="mascot-bubble">
         <b>Welkom Steven!</b> 🐾<br>
-        <span id="setupHint"></span>Loggen kan enkel met het wachtwoord in het opmerkingsveld — je weet welk 😉
+        <span id="setupHint"></span>Loggen kan enkel met het wachtwoord in het opmerkingsveld — je weet welk 😉<br>
+        <button class="mini-btn" id="goSettings">⚙️ Instellingen</button>
       </div>
     </div>
   </section>
-
-  <div class="hero">
-    <div class="eyebrow">Dwars door Hasselt · 11 okt 2026</div>
-    <div class="days" id="countdown">–<span>dagen</span></div>
-    <div class="goal">Doel: 10 km in <b>onder 60:00</b> · doeltempo 5'50"/km</div>
-    <div class="uwu-tag">✧ let's go nya~ ✧</div>
-  </div>
 
   <div class="week">
     <div class="label" id="weekLabel">Deze week</div>
@@ -246,6 +259,7 @@
 
   <section>
     <h2>Over het schema</h2>
+    <div class="countdown-line">Nog <b id="countdown">–</b> dagen tot DDH (11 okt) · doel: 10 km <b>onder 60:00</b> @ 5'50"/km ✧ nya~</div>
     <details class="schedule">
       <summary>Waarom dit plan werkt <span class="chev">▾</span></summary>
       <div class="explain">
@@ -310,14 +324,6 @@
   <section>
     <h2>Logboek</h2>
     <div id="logList"><div class="empty">Nog geen trainingen gelogd.</div></div>
-  </section>
-
-  <section>
-    <h2>Aanmoediging</h2>
-    <div class="mascot-card">
-      <div class="mascot-face">(=^･ω･^=)</div>
-      <div class="mascot-bubble" id="mascotMsg">...</div>
-    </div>
   </section>
 
   <section>
@@ -413,7 +419,7 @@ function renderCountdown(){
   today.setHours(0,0,0,0);
   const diffMs = RACE_DATE - today;
   const days = Math.max(0, Math.ceil(diffMs/86400000));
-  document.getElementById('countdown').innerHTML = days+'<span>dagen</span>';
+  document.getElementById('countdown').textContent = days;
 }
 
 function renderWeek(){
@@ -604,47 +610,163 @@ function renderFullSchedule(){
   document.getElementById('scheduleList').innerHTML = html;
 }
 
-const ENCOURAGEMENT = {
-  raceWeek:[
-    "Bijna daar! Laatste loodjes richting DDH 💫",
-    "Rust nu goed uit, je hebt hard getraind. Vertrouw op jezelf, nya~",
-    "DDH komt eraan — jij bent er klaar voor! 🐾✨"
-  ],
-  allDone:[
-    "Drie op drie deze week?? Pure perfectie, nya~ 🌟",
-    "Kampioen! Alle trainingen gehaald deze week 💕",
-    "Zo hoort het! Volledig op schema, uwu ✨"
-  ],
-  zero:[
-    "Nog niks gelogd deze week... kom op, ik geloof in je! 🐾",
-    "Hup hup, tijd om die loopschoenen aan te doen, nya~",
-    "De bank is gezellig maar DDH wacht niet, uwu~"
-  ],
-  partial:[
-    "Lekker bezig, nog eventjes volhouden~ 🐾",
-    "Goed zo! Nog een paar trainingen te gaan deze week 💪",
-    "Op koers, blijf doorzetten nya~"
-  ]
-};
-function pickEncouragement(){
+// ===== Aanmoedigingen: 40 berichten, gedreven door context =====
+// Variabelen: dagen tot wedstrijd, fase, sessies gedaan/te doen deze week,
+// laatste training (type, tempo vs. plan, volgens plan, hoe lang geleden),
+// tempo vs. doeltempo, streak (vorige week 3/3), dag van de week.
+function buildCheerCtx(){
   const today = new Date(); today.setHours(0,0,0,0);
   const daysLeft = Math.max(0, Math.ceil((RACE_DATE-today)/86400000));
   const wk = Math.min(Math.max(getWeekNumber(new Date()),1), TOTAL_WEEKS);
   const [start,end] = getWeekBounds(wk);
-  const endExclusive = new Date(end); endExclusive.setDate(endExclusive.getDate()+1);
-  const doneTypes = new Set(
-    entries.filter(e=>{
-      const d = new Date(e.date+'T00:00:00');
-      return d>=start && d<endExclusive;
-    }).map(e=>e.type)
-  );
-  const allDone = ['rustig','tempo','lang'].every(t=>doneTypes.has(t));
-  let pool;
-  if(daysLeft<=3) pool = ENCOURAGEMENT.raceWeek;
-  else if(allDone) pool = ENCOURAGEMENT.allDone;
-  else if(doneTypes.size===0) pool = ENCOURAGEMENT.zero;
-  else pool = ENCOURAGEMENT.partial;
-  return pool[Math.floor(Math.random()*pool.length)];
+  const endEx = new Date(end); endEx.setDate(endEx.getDate()+1);
+  const inWeek = (e,s,x)=>{const d=new Date(e.date+'T00:00:00');return d>=s&&d<x;};
+  const weekEntries = entries.filter(e=>inWeek(e,start,endEx));
+  const doneTypes = new Set(weekEntries.map(e=>e.type));
+  const labels = {rustig:'rustige duurloop', tempo:'tempotraining', lang:'lange training'};
+  const missing = ['rustig','tempo','lang'].filter(t=>!doneTypes.has(t));
+  let prevAllDone = false;
+  if(wk>1){
+    const [ps,pe] = getWeekBounds(wk-1);
+    const pex = new Date(pe); pex.setDate(pex.getDate()+1);
+    const pt = new Set(entries.filter(e=>inWeek(e,ps,pex)).map(e=>e.type));
+    prevAllDone = ['rustig','tempo','lang'].every(t=>pt.has(t));
+  }
+  const sorted = [...entries].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  const last = sorted[0] || null;
+  let daysSinceLast=null, lastPace=null, lastPlanPace=null;
+  if(last){
+    daysSinceLast = Math.round((today - new Date(last.date+'T00:00:00'))/86400000);
+    lastPace = paceSecPerKm(last.duur, last.afstand);
+    const lw = Math.min(Math.max(getWeekNumber(new Date(last.date+'T00:00:00')),1), TOTAL_WEEKS);
+    const ls = getWeekData(lw)[last.type];
+    if(ls && ls.duur && ls.afstand) lastPlanPace = (ls.duur*60)/ls.afstand;
+  }
+  const recent = last && daysSinceLast<=2;
+  // Totalen + mijlpalen (enkel als de laatste training ze net passeerde)
+  const totalKm = entries.reduce((a,e)=>a+(e.afstand||0),0);
+  const totalMin = entries.reduce((a,e)=>a+(e.duur||0),0);
+  const totalCount = entries.length;
+  let kmMilestone=null, hourMilestone=null, countMilestone=null;
+  if(recent){
+    for(const m of [500,400,300,250,200,150,100,75,50,25]) if(totalKm>=m && totalKm-(last.afstand||0)<m){ kmMilestone=m; break; }
+    for(const m of [50,40,30,25,20,15,10,5]) if(totalMin/60>=m && (totalMin-(last.duur||0))/60<m){ hourMilestone=m; break; }
+    for(const m of [100,75,50,40,30,25,20,15,10]) if(totalCount>=m && totalCount-1<m){ countMilestone=m; break; }
+  }
+  // Tempotrend: laatste training vs. vorige van hetzelfde type
+  let trendPct=null;
+  if(recent && lastPace){
+    const prevSame = sorted.find(e=>e!==last && e.type===last.type && paceSecPerKm(e.duur,e.afstand));
+    if(prevSame){
+      const pp = paceSecPerKm(prevSame.duur, prevSame.afstand);
+      trendPct = (pp-lastPace)/pp*100; // >0 = sneller dan vorige keer
+    }
+  }
+  // Opmerking-inhoud: klonk de laatste training zwaar?
+  const heavy = recent && /zwaar|moeilijk|kapot|moe|lastig|slecht|pijn|afzien/i.test(last.comment||'');
+  const dow = (today.getDay()+6)%7; // ma=0 ... zo=6
+  return {daysLeft, wk, phase:getWeekData(wk).phase, doneCount:doneTypes.size,
+    missing, missingLabel: missing.map(t=>labels[t]).join(' en de '),
+    allDone: missing.length===0, prevAllDone, last, daysSinceLast, lastPace, lastPlanPace,
+    lastTypeLabel: last ? labels[last.type] : null,
+    totalKm, totalHours: totalMin/60, totalCount, kmMilestone, hourMilestone, countMilestone,
+    trendPct, heavy, dow, daysLeftWeek: 7-dow};
+}
+const CHEER_POOLS = [
+  { when:c=>c.daysLeft===0, msgs:[
+    c=>"VANDAAG IS DE DAG!! 10 km, onder het uur — go go go nya~!! 🏁🐾",
+    c=>"Race day! Rustig starten, vanaf km 7 alles geven. Ik geloof 100% in je 💥",
+  ]},
+  { when:c=>c.daysLeft<=6, msgs:[
+    c=>`Wedstrijdweek! Nog ${c.daysLeft} dagen... zenuwen zijn gewoon opgeslagen energie, nya~`,
+    c=>"Alles is gedaan wat gedaan moest worden. Nu enkel nog oogsten 🐾✨",
+  ]},
+  { when:c=>c.phase==='Taper', msgs:[
+    c=>"Taper-tijd: minder is meer. Je conditie is al binnen, uwu~",
+    c=>"Voel je je raar met zo weinig training? Perfect, dat is de bedoeling 😼",
+    c=>"−30% volume, +100% frisheid. Vertrouw het proces, nya~",
+  ]},
+  { when:c=>c.allDone && c.prevAllDone, msgs:[
+    c=>"Twee weken op rij alles gehaald?! Machine! 🌟🌟",
+    c=>"Streak actief! Deze consistentie loopt zó naar sub-60, nya~",
+  ]},
+  { when:c=>c.allDone, msgs:[
+    c=>"Drie op drie deze week!! Pure perfectie, nya~ 🌟",
+    c=>"Week volbracht! Rust nu — herstel is waar je sneller wordt 💕",
+    c=>"Alles afgevinkt, uwu ✨ Trakteer jezelf op iets lekkers.",
+    c=>`3/3! Week ${c.wk} zit erop — vandaag: genieten 🐾`,
+  ]},
+  { when:c=>c.kmMilestone, msgs:[
+    c=>`MIJLPAAL: ${c.kmMilestone} km totaal gelopen!! Wat een machine, nya~ 🎉🐾`,
+    c=>`${c.kmMilestone} km op de teller — elke stap bracht je hier. Trots! ✨`,
+    c=>`Welkom in de ${c.kmMilestone} km-club! Volgende halte: de finish in Hasselt 🏁`,
+  ]},
+  { when:c=>c.hourMilestone || c.countMilestone, msgs:[
+    c=>c.hourMilestone ? `Al ${c.hourMilestone} uur getraind in totaal — pure toewijding, uwu ⏱️✨` : `Training nummer ${c.countMilestone} gelogd! Consistentie-koning 👑`,
+    c=>`${c.totalCount} trainingen, ${c.totalKm.toFixed(0)} km, ${c.totalHours.toFixed(0)} uur — de teller loopt op, nya~ 📈`,
+  ]},
+  { when:c=>c.heavy, msgs:[
+    c=>"Zware benen vandaag? Die dagen tellen dubbel. Rust goed, nya~ 💜",
+    c=>"Niet elke training hoeft te vliegen — je bent komen opdagen, en dát is de winst 🐾",
+    c=>"Zwaar gevoel, tóch gelopen. Daar wordt conditie van gemaakt, uwu",
+  ]},
+  { when:c=>c.trendPct!==null && c.trendPct>=2, msgs:[
+    c=>`${c.trendPct.toFixed(0)}% sneller dan je vorige ${c.lastTypeLabel}! De lijn wijst naar sub-60 📉🔥`,
+    c=>`Week op week sneller op de ${c.lastTypeLabel} — precies wat het plan wil zien, nya~`,
+  ]},
+  { when:c=>c.last && c.daysSinceLast<=2 && c.lastPace && c.last.type!=='rustig' && c.lastPace<=GOAL_PACE_SEC, msgs:[
+    c=>"Je liep sneller dan wedstrijdtempo! Sub-60 zit er dik in 👀🔥",
+    c=>"5'50 al getikt in training — de wedstrijd wordt oogsten, nya~",
+    c=>"Doeltempo? Check. Nu vooral gezond en fris blijven 🐾",
+  ]},
+  { when:c=>c.last && c.daysSinceLast<=2 && c.lastPace && c.lastPlanPace && c.lastPace < c.lastPlanPace*0.98, msgs:[
+    c=>"Sneller dan het plan vroeg! Sterk — maar spaar wat voor oktober, nya~ 😼",
+    c=>`Het plan zei ${fmtPace(c.lastPlanPace)}/km, jij liep ${fmtPace(c.lastPace)}/km. Wie traint hier wie? 💪`,
+    c=>"Boven verwachting! Onthoud dit gevoel voor een zware dag ✨",
+  ]},
+  { when:c=>c.last && c.daysSinceLast<=2 && !c.last.plan, msgs:[
+    c=>"Niet volgens plan? Geeft niks — gedaan is gedaan, en dát telt 🐾",
+    c=>"Een mindere dag maakt het schema niet kapot. Morgen weer fris, nya~",
+    c=>"Afgeweken maar gelopen: tien keer beter dan perfect op de bank, uwu",
+  ]},
+  { when:c=>c.last && c.daysSinceLast>=4 && !c.allDone, msgs:[
+    c=>`Al ${c.daysSinceLast} dagen stil... de loopschoenen missen je, nya~ 🥺`,
+    c=>"Kleine pauze gehad? Prima. Vandaag weer opstarten? 🐾",
+    c=>"DDH traint niet zichzelf... eentje vandaag? Ik supporter mee!",
+  ]},
+  { when:c=>c.doneCount===0 && c.dow>=3, msgs:[
+    c=>"Nog 0/3 en de week loopt af... vandaag rustig starten? 🐾",
+    c=>`Drie sessies, nog ${c.daysLeftWeek} dagen. Krap maar haalbaar — hup!`,
+    c=>"De week glipt weg, nya~ Zelfs een korte rustige loop telt!",
+  ]},
+  { when:c=>c.doneCount===0, msgs:[
+    c=>"Nieuwe week, schone lei! Welke wordt het vandaag: rustig, tempo of lang? ✨",
+    c=>"Nog niks gelogd deze week... kom op, ik geloof in je! 🐾",
+  ]},
+  { when:c=>c.last && c.daysSinceLast===0, msgs:[
+    c=>`Vers gelogd: ${c.last.afstand} km erbij — het totaal groeit, nya~ 📈`,
+    c=>"Weer een training in de pocket. Consistentie wint, uwu ✨",
+  ]},
+  { when:c=>c.missing.length===1, msgs:[
+    c=>`Nog ééntje: de ${c.missingLabel}. Dan is de week binnen! 🌟`,
+    c=>`2/3! De ${c.missingLabel} wacht nog — bijna feest, nya~`,
+    c=>`Zo dicht bij 3/3... die ${c.missingLabel} doet zichzelf niet, uwu`,
+  ]},
+  { when:c=>c.doneCount===1, msgs:[
+    c=>`Eén binnen! Nog de ${c.missingLabel} en de week is rond 💪`,
+    c=>"Goede start van de week — momentum is er, hou het vast 🐾",
+    c=>"1/3, lekker op dreef nya~ Welke pak je morgen?",
+  ]},
+];
+const CHEER_DEFAULT = [
+  c=>"Stap voor stap naar sub-60, nya~ 🐾",
+  c=>"Elke kilometer telt. DDH komt dichterbij ✨",
+];
+function pickEncouragement(){
+  const ctx = buildCheerCtx();
+  const pool = CHEER_POOLS.find(p=>p.when(ctx));
+  const msgs = pool ? pool.msgs : CHEER_DEFAULT;
+  return msgs[Math.floor(Math.random()*msgs.length)](ctx);
 }
 function renderMascot(){
   const el = document.getElementById('mascotMsg');
@@ -783,6 +905,12 @@ async function pullFromGithub(){
     }
   }catch(e){ /* offline of geen toegang — lokaal werkt gewoon door */ }
 }
+
+document.getElementById('goSettings').addEventListener('click', ()=>{
+  const d = document.getElementById('githubDetails');
+  d.open = true;
+  d.scrollIntoView({behavior:'smooth'});
+});
 
 document.getElementById('gh-save').addEventListener('click', async ()=>{
   const cfg = {
