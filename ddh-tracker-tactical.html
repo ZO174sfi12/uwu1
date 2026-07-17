@@ -342,13 +342,13 @@
     html,body{height:100%;overflow:hidden;}
     body{padding-bottom:0;}
     .wrap{
-      width:1600px;height:860px;box-sizing:border-box;padding:16px 22px;
+      width:1600px;height:860px;box-sizing:border-box;padding:42px 22px 16px;
       position:absolute;left:50%;top:50%;
       transform:translate(-50%,-50%); /* schaal wordt via JS toegevoegd */
       max-width:none;
       display:grid;gap:14px;
-      grid-template-columns:1fr 1fr 1.15fr;
-      grid-template-rows:76px 108px 208px 1fr 190px;
+      grid-template-columns:1.55fr 0.7fr 1.05fr;
+      grid-template-rows:88px 112px 224px 1fr 200px;
       grid-template-areas:
         "img     schema cheer"
         "img     schema week"
@@ -361,8 +361,14 @@
     .plan-img{grid-area:img;padding:0;}
     .plan-img picture{display:block;height:100%;}
     .plan-img img{width:100%;height:100%;object-fit:contain;object-position:left top;border-radius:4px;}
-    .week{grid-area:week;border:1px solid var(--line);border-radius:4px;padding:14px 18px;}
-    .week-plan{grid-area:wplan;border:1px solid var(--line);border-radius:4px;padding:10px;overflow:hidden;}
+    .week,.week-plan{
+      scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+    }
+    .week::-webkit-scrollbar,.week-plan::-webkit-scrollbar{width:6px;}
+    .week::-webkit-scrollbar-thumb,.week-plan::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+    .week::-webkit-scrollbar-track,.week-plan::-webkit-scrollbar-track{background:transparent;}
+    .week{grid-area:week;border:1px solid var(--line);border-radius:4px;padding:14px 18px;overflow-y:auto;}
+    .week-plan{grid-area:wplan;border:1px solid var(--line);border-radius:4px;padding:10px;overflow-y:auto;}
     .week-plan .plan-card{border:none;padding:8px 12px;}
     .week-plan .plan-head{margin-bottom:8px;}
     .week-plan .plan-session{padding:8px 4px;}
@@ -374,7 +380,13 @@
     .sec-welcome .mascot-card{padding:14px 20px;}
     .sec-welcome .mascot-bubble{font-size:12.5px;line-height:1.35;}
     .sec-schema{grid-area:schema;overflow:hidden;position:relative;border:1px solid var(--line);border-radius:4px;padding:14px 18px;}
-    #inputSection{grid-area:input;overflow:hidden;border:1px solid var(--line);border-radius:4px;padding:14px 18px;}
+    #inputSection{
+      grid-area:input;overflow-y:auto;border:1px solid var(--line);border-radius:4px;padding:14px 18px;
+      scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+    }
+    #inputSection::-webkit-scrollbar{width:6px;}
+    #inputSection::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+    #inputSection::-webkit-scrollbar-track{background:transparent;}
     .sec-log{display:none;}
     #openLog{display:inline-block;margin-left:auto;margin-top:0;}
     .sec-log::after{
@@ -390,11 +402,14 @@
     }
     .sec-chart{grid-area:chart;border:1px solid var(--line);border-radius:4px;padding:12px 18px;overflow:hidden;cursor:pointer;}
     .sec-chart .chart-wrap{border:none;padding:6px 0 0;height:calc(100% - 30px);background:transparent;}
-    .sec-github{position:fixed;top:8px;right:150px;padding:0;border:none;z-index:5;}
+    .sec-github{
+      position:fixed;top:9px;left:22px;right:170px;padding:0;border:none;z-index:5;
+      gap:14px;justify-content:flex-start;
+    }
     .sec-github .mini-btn{margin-top:0;}
     section{border-bottom:none;}
     h2{margin-bottom:10px;}
-    #countdown{font-size:36px;}
+    #countdown{font-size:72px;}
     #inputSection{padding:12px 18px;}
     .countdown-line{margin-bottom:10px;}
     /* compacter formulier zodat alles (incl. opslaan-knop) binnen het paneel valt */
@@ -405,6 +420,11 @@
     #inputSection .check{padding:4px 0 8px;}
     #inputSection button{padding:10px;}
     #inputSection h2{margin-bottom:8px;}
+    /* datum en type naast elkaar: wint een volledige rij voor de opslaan-knop */
+    #inputSection{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;align-content:start;}
+    #inputSection > *{grid-column:1/-1;min-width:0;}
+    #inputSection > div:nth-of-type(2){grid-column:1;}
+    #inputSection > div:nth-of-type(3){grid-column:2;}
     /* grotere leestekst op het dashboard */
     body{font-size:17px;}
     h2{font-size:16px;}
@@ -481,7 +501,7 @@
 
   <section class="sec-schema">
     <h2>Over het schema</h2>
-    <div class="countdown-line">T-MINUS <b id="countdown">–</b> DAGEN · MISSIE: 10 KM <b>ONDER 60:00</b> · DOELTEMPO 5'50"/KM</div>
+    <div class="countdown-line">T-MINUS <b id="countdown">–</b> DAGEN</div>
     <details class="schedule">
       <summary>Waarom dit plan werkt <span class="chev">▾</span></summary>
       <div class="explain">
@@ -529,8 +549,8 @@
       Volgens plan verlopen
     </label>
     <div class="field">
-      <label for="f-comment">Opmerking (optioneel)</label>
-      <textarea id="f-comment" placeholder="Hoe voelde het, afwijkingen, weer, ..."></textarea>
+      <label for="f-comment">Opmerking — extra oefeningen uitgevoerd?</label>
+      <textarea id="f-comment" placeholder="Rapporteer afwijkingen en extra werk. Aanbevolen: 3x10 push-ups na de duurloop."></textarea>
     </div>
     <button id="f-submit">Training opslaan</button>
     <div class="form-msg" id="formMsg"></div>
