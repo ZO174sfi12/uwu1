@@ -116,6 +116,13 @@
     background:var(--surface2);border:1px solid var(--line);color:var(--accent2);
     border-radius:999px;box-shadow:none;font-family:'Inter',sans-serif;font-weight:600;
   }
+  .sync-badge{
+    font-size:10px;padding:4px 10px;border-radius:3px;border:1px solid var(--line);
+    color:var(--muted);white-space:nowrap;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    font-family:'Barlow Condensed',sans-serif;
+  }
+  .sync-badge.ok{color:var(--good);border-color:var(--good);}
+  .sync-badge.warn{color:var(--accent);border-color:var(--accent);}
   .form-msg{
     display:none;margin-top:12px;padding:11px 14px;font-size:13px;border-radius:12px;
     background:rgba(217,164,65,.08);border:1px solid var(--accent);color:var(--accent);font-weight:600;
@@ -273,6 +280,7 @@
 
   <div class="week">
     <div class="label" id="weekLabel">Deze week</div>
+    <span class="sync-badge" id="syncBadge"></span>
     <div class="dots" id="weekDots">
       <div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
@@ -375,6 +383,7 @@ const STORAGE_KEY = 'ddh-training-log';
 const GITHUB_CONFIG_KEY = 'ddh-github-config';
 const GITHUB_TRIGGER = 'punani';
 const SYNC_FLAG_KEY = 'ddh-sync-enabled';
+const DIRTY_KEY = 'ddh-dirty';
 
 // Trainingsschema: week 1 start op maandag 13/7/2026
 const PLAN_START = new Date('2026-07-13T00:00:00');
@@ -805,6 +814,7 @@ function renderAll(){
   renderMascot();
   renderList();
   renderChart();
+  renderSyncBadge();
 }
 
 function syncEnabled(){
@@ -820,10 +830,22 @@ async function load(){
 async function save(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    localStorage.setItem(DIRTY_KEY, '1'); // wijzigingen staan enkel lokaal tot de push slaagt
   }catch(e){
     console.error('Opslaan mislukt', e);
   }
-  if(syncEnabled()) pushToGithub();
+  renderSyncBadge();
+  if(syncEnabled()) await pushToGithub();
+}
+
+function renderSyncBadge(){
+  const el = document.getElementById('syncBadge');
+  if(!el) return;
+  let cfg = null;
+  try{ cfg = JSON.parse(localStorage.getItem(GITHUB_CONFIG_KEY)) || null; }catch(e){}
+  if(!cfg || !cfg.token){ el.textContent = 'SYNC NIET INGESTELD'; el.className = 'sync-badge warn'; }
+  else if(localStorage.getItem(DIRTY_KEY) === '1'){ el.textContent = 'NIET GESYNCT'; el.className = 'sync-badge warn'; }
+  else { el.textContent = 'SYNC OK'; el.className = 'sync-badge ok'; }
 }
 
 async function loadGithubConfig(){
@@ -898,6 +920,7 @@ async function pushToGithub(){
       body: JSON.stringify(body)
     });
     if(putRes.ok){
+      localStorage.removeItem(DIRTY_KEY); // bevestigd op GitHub
       setSyncStatus('✓ Gesynchroniseerd met GitHub', false);
     }else{
       const err = await putRes.json().catch(()=>({}));
@@ -906,28 +929,39 @@ async function pushToGithub(){
   }catch(e){
     setSyncStatus('Netwerkfout bij synchroniseren met GitHub.', true);
   }
+  renderSyncBadge();
 }
 async function pullFromGithub(){
   const cfg = await loadGithubConfig();
-  if(!cfg || !cfg.token || !cfg.repo || !cfg.path) return;
+  if(!cfg || !cfg.token || !cfg.repo || !cfg.path){ renderSyncBadge(); return; }
   const branch = cfg.branch || 'main';
   try{
     const res = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/${cfg.path}?ref=${encodeURIComponent(branch)}`, {
       headers:{ Authorization:`Bearer ${cfg.token}`, Accept:'application/vnd.github+json' }
     });
-    if(!res.ok) return;
+    if(!res.ok){ renderSyncBadge(); return; }
     const data = await res.json();
     const remote = JSON.parse(decodeURIComponent(escape(atob((data.content||'').replace(/\n/g,'')))));
     if(!Array.isArray(remote)) return;
-    const ids = new Set(entries.map(e=>e.id));
-    let added = 0;
-    remote.forEach(e=>{ if(e && e.id && !ids.has(e.id)){ entries.push(e); added++; } });
-    if(added){
+    if(localStorage.getItem(DIRTY_KEY) !== '1'){
+      // GitHub is de bron: neem de remote stand integraal over
+      const changed = JSON.stringify(remote) !== JSON.stringify(entries);
+      entries = remote;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      if(changed){
+        renderAll();
+        setSyncStatus('✓ Log bijgewerkt vanaf GitHub', false);
+      }
+    }else{
+      // Lokale niet-gesyncte wijzigingen: samenvoegen en meteen terugpushen
+      const ids = new Set(entries.map(e=>e.id));
+      remote.forEach(e=>{ if(e && e.id && !ids.has(e.id)) entries.push(e); });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
       renderAll();
-      setSyncStatus(`✓ ${added} training(en) opgehaald van GitHub`, false);
+      if(syncEnabled()) await pushToGithub();
     }
-  }catch(e){ /* offline of geen toegang — lokaal werkt gewoon door */ }
+    renderSyncBadge();
+  }catch(e){ renderSyncBadge(); /* offline — lokaal werkt gewoon door */ }
 }
 
 document.getElementById('goSettings').addEventListener('click', ()=>{
@@ -945,6 +979,8 @@ document.getElementById('gh-save').addEventListener('click', async ()=>{
   };
   const ok = await saveGithubConfig(cfg);
   setSyncStatus(ok ? 'Instellingen opgeslagen.' : 'Opslaan mislukt.', !ok);
+  renderSyncBadge();
+  if(ok && cfg.token) pullFromGithub();
 });
 
 document.getElementById('f-submit').addEventListener('click', async ()=>{
