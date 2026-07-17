@@ -72,9 +72,20 @@
 
   /* WEEK STRIP */
   .week{
-    display:flex;align-items:center;justify-content:space-between;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
     padding:20px 24px 12px;
   }
+  .adherence{
+    width:100%;margin-top:10px;font-size:12px;color:var(--muted);display:none;
+    padding:10px 14px;border-radius:12px;border:1px solid var(--line);box-sizing:border-box;
+  }
+  .adherence b{font-family:'Baloo 2',sans-serif;font-size:16px;}
+  .adherence.good{border-color:var(--good);background:rgba(57,255,156,.07);box-shadow:0 0 12px rgba(57,255,156,.25);}
+  .adherence.mid{border-color:#ff9f43;background:rgba(255,159,67,.08);box-shadow:0 0 12px rgba(255,159,67,.3);}
+  .adherence.low{border-color:var(--accent);background:rgba(255,46,166,.08);box-shadow:0 0 12px var(--glow-pink);}
+  .adherence.good b{color:var(--good);text-shadow:0 0 8px rgba(57,255,156,.5);}
+  .adherence.mid b{color:#ff9f43;text-shadow:0 0 8px rgba(255,159,67,.5);}
+  .adherence.low b{color:var(--accent);text-shadow:0 0 8px var(--glow-pink);}
   .week-plan{padding:0 24px 20px;border-bottom:1px solid var(--line);}
   .plan-hint{
     display:none;margin-bottom:16px;padding:10px 14px;font-size:13px;
@@ -86,6 +97,13 @@
     color:var(--muted);text-decoration:none;
   }
   .theme-link:hover{color:var(--accent2);}
+  .sec-github{
+    display:flex;align-items:center;gap:10px;
+    padding:6px 24px 0;border-bottom:none;
+  }
+  .sec-github .mini-btn{margin-top:0;}
+  #openLog{display:none;} /* enkel op het PC-dashboard zichtbaar */
+  .setup-note{display:none;}
   .top-card{padding:20px 24px 24px;}
   .plan-img{padding:24px 24px 0;border-bottom:none;}
   .plan-img img{
@@ -100,7 +118,29 @@
     section{padding-left:14px;padding-right:14px;}
     .week{padding-left:14px;padding-right:14px;}
     .week-plan{padding-left:14px;padding-right:14px;}
-    #countdown{font-size:64px;}
+    #countdown{font-size:56px;}
+    /* compactere tekst op kleine schermen */
+    h2{font-size:12px;}
+    .week .label{font-size:12px;}
+    .adherence{font-size:11px;}
+    .adherence b{font-size:14px;}
+    .plan-session{font-size:12px;}
+    .plan-session .desc{font-size:12px;}
+    .plan-session .tag{font-size:9px;}
+    label{font-size:11px;}
+    input,select,textarea{font-size:13px;padding:10px 12px;}
+    .check{font-size:13px;}
+    .countdown-line{font-size:12px;}
+    .mascot-bubble{font-size:13px;}
+    .entry-stats{font-size:18px;}
+    .entry-flag{font-size:11px;}
+    .entry-comment{font-size:12px;}
+    details.schedule summary{font-size:12px;padding:14px 16px;}
+    .explain{font-size:12px;}
+    .week-row{font-size:11px;}
+    .week-row .sess{font-size:10px;}
+    button{font-size:13px;padding:12px;}
+    .mini-btn{font-size:11px;}
   }
   .countdown-line{
     margin-bottom:16px;font-size:13px;color:var(--muted);text-align:center;
@@ -193,6 +233,18 @@
   input:focus,select:focus,textarea:focus{outline:2px solid var(--accent2);outline-offset:1px;}
   textarea{resize:vertical;min-height:60px;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  /* nette steppers i.p.v. native spinners */
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  input[type=number]{-moz-appearance:textfield;appearance:textfield;}
+  .stepper{display:flex;align-items:stretch;gap:6px;}
+  .stepper input{flex:1;min-width:0;text-align:center;}
+  .step-btn{
+    width:40px;flex:none;padding:0;border-radius:12px;
+    border:1px solid var(--line);background:var(--surface2);color:var(--accent2);
+    font-size:18px;font-weight:700;cursor:pointer;box-shadow:none;line-height:1;
+  }
+  .step-btn:active{background:var(--surface);color:var(--accent);}
   .check{
     display:flex;align-items:center;gap:12px;padding:12px 0 16px;font-size:14px;
   }
@@ -206,7 +258,7 @@
   button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);margin-top:10px;box-shadow:none;}
 
   /* CHART */
-  .chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 14px;}
+  .chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 14px;height:240px;box-sizing:border-box;}
 
   /* LOG LIST */
   .entry{
@@ -247,6 +299,135 @@
   @keyframes mascot-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
   @media (prefers-reduced-motion: reduce){.mascot-face{animation:none;}}
   .mascot-bubble{flex:1;font-size:14px;line-height:1.4;color:var(--text);}
+
+  /* Volledig-logboek overlay */
+  .log-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;}
+  .log-modal.open{display:flex;align-items:center;justify-content:center;}
+  .log-modal-inner{
+    width:min(780px,94vw);max-height:92vh;overflow-y:auto;
+    background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:0 26px 22px;
+    scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+    font-size:19px;line-height:1.65;
+  }
+  .log-modal-head{
+    display:flex;justify-content:space-between;align-items:center;
+    position:sticky;top:0;z-index:2;background:var(--surface);
+    padding:18px 0 12px;margin-bottom:12px;border-bottom:1px solid var(--line);
+  }
+  .log-modal-head h2{font-size:22px;margin:0;}
+  .log-close{width:auto;background:none;border:none;color:var(--muted);font-size:34px;line-height:1;cursor:pointer;box-shadow:none;padding:2px 8px;}
+  .log-close:hover{color:var(--accent);}
+  /* Uitleg-popup: leesformaat met tussentitels */
+  #infoBody{font-size:19px;line-height:1.8;color:var(--text);padding:2px 2px 8px;}
+  #infoBody p{margin:0 0 20px;}
+  #infoBody p > b:first-child{display:block;font-size:21px;color:var(--accent2);margin-bottom:6px;letter-spacing:.02em;}
+  #infoBody .week-row{font-size:18px;padding:16px 10px;}
+  #infoBody .week-row .wk{font-size:19px;}
+  #infoBody .week-row .sess{font-size:16.5px;line-height:1.9;margin-top:8px;}
+  /* Logboek-popup: grotere cijfers */
+  #logListFull .entry-stats{font-size:26px;}
+  #logListFull .entry-type{font-size:13px;}
+  #logListFull .entry-date{font-size:15px;}
+  #logListFull .entry-flag{font-size:16px;}
+  #logListFull .entry-comment{font-size:17px;}
+  /* Sync-popup */
+  #settingsModal label{font-size:16px;}
+  #settingsModal input{font-size:17px;}
+  #settingsModal button{font-size:16px;}
+
+  /* ===== PC-dashboard: vast canvas (1600x860) dat als geheel meeschaalt — nooit scrollen ===== */
+  @media (min-width:1100px){
+    html,body{height:100%;overflow:hidden;}
+    body{padding-bottom:0;}
+    .wrap{
+      width:1600px;height:860px;box-sizing:border-box;padding:16px 22px;
+      position:absolute;left:50%;top:50%;
+      transform:translate(-50%,-50%); /* schaal wordt via JS toegevoegd */
+      max-width:none;
+      display:grid;gap:14px;
+      grid-template-columns:1fr 1fr 1.15fr;
+      grid-template-rows:76px 108px 208px 1fr 190px;
+      grid-template-areas:
+        "img     schema cheer"
+        "img     schema week"
+        "img     schema wplan"
+        "chart   chart  input"
+        "chart   chart  input";
+    }
+    .wrap > *{min-height:0;min-width:0;}
+    .theme-link{position:fixed;top:8px;right:18px;padding:0;z-index:5;}
+    .plan-img{grid-area:img;padding:0;}
+    .plan-img picture{display:block;height:100%;}
+    .plan-img img{width:100%;height:100%;object-fit:contain;object-position:left top;border-radius:18px;}
+    .week{grid-area:week;border:1px solid var(--line);border-radius:16px;padding:14px 18px;}
+    .week-plan{grid-area:wplan;border:1px solid var(--line);border-radius:16px;padding:10px;overflow:hidden;}
+    .week-plan .plan-card{border:none;padding:8px 12px;}
+    .week-plan .plan-head{margin-bottom:8px;}
+    .week-plan .plan-session{padding:8px 4px;}
+    .sec-cheer{grid-area:cheer;padding:0 !important;border:none;}
+    .sec-cheer .mascot-card,.sec-welcome .mascot-card{height:100%;box-sizing:border-box;}
+    .sec-cheer .mascot-card{padding:12px 20px;}
+    .sec-welcome{display:none;} /* compacte hint bij de instellingen vervangt dit op PC */
+    .setup-note{display:inline;font-size:13px;color:var(--accent);}
+    .sec-welcome .mascot-card{padding:14px 20px;}
+    .sec-welcome .mascot-bubble{font-size:12.5px;line-height:1.35;}
+    .sec-schema{grid-area:schema;overflow:hidden;position:relative;border:1px solid var(--line);border-radius:16px;padding:14px 18px;}
+    #inputSection{grid-area:input;overflow:hidden;border:1px solid var(--line);border-radius:16px;padding:14px 18px;}
+    .sec-log{display:none;}
+    #openLog{display:inline-block;margin-left:auto;margin-top:0;}
+    .sec-log::after{
+      content:'';position:absolute;left:0;right:0;bottom:0;height:64px;
+      background:linear-gradient(rgba(0,0,0,0), var(--bg));pointer-events:none;border-radius:0 0 16px 16px;
+    }
+    .sec-schema details.schedule summary{color:var(--text);font-weight:700;padding:13px 16px;}
+    .sec-log{cursor:pointer;}
+    .sec-log::after{
+      content:'▾ klik voor volledig logboek';
+      display:flex;align-items:flex-end;justify-content:center;
+      color:var(--muted);font-size:11px;padding-bottom:8px;
+    }
+    .sec-chart{grid-area:chart;border:1px solid var(--line);border-radius:16px;padding:12px 18px;overflow:hidden;cursor:pointer;}
+    .sec-chart .chart-wrap{border:none;padding:6px 0 0;height:calc(100% - 30px);background:transparent;}
+    .sec-github{position:fixed;top:8px;right:150px;padding:0;border:none;z-index:5;}
+    .sec-github .mini-btn{margin-top:0;}
+    section{border-bottom:none;}
+    h2{margin-bottom:10px;}
+    #countdown{font-size:36px;}
+    #inputSection{padding:12px 18px;}
+    .countdown-line{margin-bottom:10px;}
+    /* compacter formulier zodat alles (incl. opslaan-knop) binnen het paneel valt */
+    #inputSection .field{margin-bottom:7px;}
+    #inputSection label{margin-bottom:2px;}
+    #inputSection input,#inputSection select,#inputSection textarea{padding:7px 12px;font-size:13px;}
+    #inputSection textarea{min-height:28px;}
+    #inputSection .check{padding:4px 0 8px;}
+    #inputSection button{padding:10px;}
+    #inputSection h2{margin-bottom:8px;}
+    /* grotere leestekst op het dashboard */
+    body{font-size:17px;}
+    h2{font-size:16px;}
+    .week .label{font-size:16px;}
+    .adherence{font-size:14px;}
+    .adherence b{font-size:19px;}
+    .plan-session{font-size:16px;}
+    .plan-session .desc{font-size:16px;}
+    .plan-session .tag{font-size:13px;}
+    label{font-size:15px;}
+    #inputSection input,#inputSection select,#inputSection textarea{font-size:16px;padding:8px 12px;}
+    #inputSection .field{margin-bottom:8px;}
+    .check{font-size:16px;}
+    .countdown-line{font-size:16px;}
+    .mascot-bubble{font-size:17px;}
+    .sec-welcome .mascot-bubble{font-size:15px;}
+    .entry-stats{font-size:24px;}
+    .entry-flag{font-size:15px;}
+    .entry-comment{font-size:16px;}
+    details.schedule summary{font-size:16px;}
+    .week-row{font-size:14px;}
+    .week-row .sess{font-size:13px;}
+    .sync-badge{font-size:11px;}
+    .theme-link{font-size:13px;}
+  }
 </style>
 </head>
 <body>
@@ -254,41 +435,49 @@
 
   <a class="theme-link" href="ddh-tracker-tactical.html">🎖️ Mission mode</a>
 
-  <section class="plan-img">
-    <img src="plan.jpg?v=2" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
-         onerror="this.parentElement.style.display='none'">
+  <section class="sec-github">
+    <button class="mini-btn" id="openSettings">⚙️ Sync-instellingen</button>
+    <span class="sync-badge" id="syncBadge"></span>
+    <span class="setup-note" id="setupTop"></span>
   </section>
 
-  <section class="top-card" style="border-bottom:none;padding-bottom:0;">
+  <section class="plan-img">
+    <picture>
+      <source media="(min-width:1100px)" srcset="plan.png?v=2">
+      <img src="plan.jpg?v=2" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
+           onerror="this.parentElement.parentElement.style.display='none'">
+    </picture>
+  </section>
+
+  <section class="top-card sec-cheer" style="border-bottom:none;padding-bottom:0;">
     <div class="mascot-card">
       <div class="mascot-face">(=^･ω･^=)</div>
       <div class="mascot-bubble" id="mascotMsg">...</div>
     </div>
   </section>
 
-  <section class="top-card">
+  <section class="top-card sec-welcome">
     <div class="mascot-card">
       <div class="mascot-face">(=ↀωↀ=)✧</div>
       <div class="mascot-bubble">
         <b>Welkom Steven!</b> 🐾<br>
-        <span id="setupHint"></span>Loggen kan enkel met het wachtwoord in het opmerkingsveld — je weet welk 😉<br>
-        <button class="mini-btn" id="goSettings">⚙️ Instellingen</button>
+        <span id="setupHint"></span>Loggen kan enkel met het wachtwoord in het opmerkingsveld — je weet welk 😉
       </div>
     </div>
   </section>
 
   <div class="week">
     <div class="label" id="weekLabel">Deze week</div>
-    <span class="sync-badge" id="syncBadge"></span>
     <div class="dots" id="weekDots">
       <div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
+    <div class="adherence" id="adherence"></div>
   </div>
   <div class="week-plan">
     <div class="plan-card" id="planThisWeek"></div>
   </div>
 
-  <section>
+  <section class="sec-schema">
     <h2>Over het schema</h2>
     <div class="countdown-line">Nog <b id="countdown">–</b> dagen tot DDH (11 okt) · doel: 10 km <b>onder 60:00</b> @ 5'50"/km ✧ nya~</div>
     <details class="schedule">
@@ -345,32 +534,62 @@
     <div class="form-msg" id="formMsg"></div>
   </section>
 
-  <section>
-    <h2>Tempo-trend vs doeltempo</h2>
+  <section class="sec-chart">
+    <h2>Tempo-trend vs doeltempo<button class="mini-btn" id="openLog">📖 Logboek</button></h2>
     <div class="chart-wrap">
       <canvas id="paceChart" height="180"></canvas>
     </div>
   </section>
 
-  <section>
+  <section class="sec-log">
     <h2>Logboek</h2>
     <div id="logList"><div class="empty">Nog geen trainingen gelogd.</div></div>
   </section>
 
-  <section>
-    <h2>GitHub sync (optioneel)</h2>
-    <details class="schedule" id="githubDetails">
-      <summary>Instellingen <span class="chev">▾</span></summary>
-      <div style="padding:14px 16px;">
-        <div class="field"><label for="gh-token">Personal access token</label><input type="password" id="gh-token" placeholder="ghp_..."></div>
-        <div class="field" style="display:none;"><label for="gh-repo">Repo (owner/naam)</label><input type="text" id="gh-repo" value="ZO174sfi12/uwu1"></div>
-        <div class="field" style="display:none;"><label for="gh-path">Bestandspad</label><input type="text" id="gh-path" value="training-log.json"></div>
-        <div class="field" style="display:none;"><label for="gh-branch">Branch</label><input type="text" id="gh-branch" value="main"></div>
-        <button id="gh-save">Instellingen opslaan</button>
-        <div id="syncStatus" style="font-size:12px;margin-top:10px;color:var(--muted);"></div>
+  <div class="log-modal" id="logModal">
+    <div class="log-modal-inner">
+      <div class="log-modal-head">
+        <h2>Volledig logboek</h2>
+        <button class="log-close" id="logClose">×</button>
       </div>
-    </details>
-  </section>
+      <div id="logListFull"></div>
+    </div>
+  </div>
+
+  <div class="log-modal" id="infoModal">
+    <div class="log-modal-inner" style="width:min(1060px,96vw);">
+      <div class="log-modal-head">
+        <h2 id="infoTitle"></h2>
+        <button class="log-close" id="infoClose">×</button>
+      </div>
+      <div id="infoBody" class="explain"></div>
+    </div>
+  </div>
+
+  <div class="log-modal" id="chartModal">
+    <div class="log-modal-inner" style="width:min(1260px,96vw);">
+      <div class="log-modal-head">
+        <h2>Tempo-trend vs doeltempo</h2>
+        <button class="log-close" id="chartClose">×</button>
+      </div>
+      <div style="height:68vh;"><canvas id="paceChartBig"></canvas></div>
+    </div>
+  </div>
+
+  <div class="log-modal" id="settingsModal">
+    <div class="log-modal-inner" style="width:min(560px,94vw);">
+      <div class="log-modal-head">
+        <h2>GitHub sync</h2>
+        <button class="log-close" id="settingsClose">×</button>
+      </div>
+      <div class="field"><label for="gh-token">Personal access token</label><input type="password" id="gh-token" placeholder="ghp_..."></div>
+      <div class="field" style="display:none;"><label for="gh-repo">Repo (owner/naam)</label><input type="text" id="gh-repo" value="ZO174sfi12/uwu1"></div>
+      <div class="field" style="display:none;"><label for="gh-path">Bestandspad</label><input type="text" id="gh-path" value="training-log.json"></div>
+      <div class="field" style="display:none;"><label for="gh-branch">Branch</label><input type="text" id="gh-branch" value="main"></div>
+      <button id="gh-save">Instellingen opslaan</button>
+      <div id="syncStatus" style="font-size:12px;margin-top:10px;color:var(--muted);"></div>
+    </div>
+  </div>
 
 
 </div>
@@ -473,12 +692,15 @@ function renderWeek(){
 
 function renderList(){
   const listEl = document.getElementById('logList');
+  const fullEl = document.getElementById('logListFull');
   if(entries.length===0){
-    listEl.innerHTML = '<div class="empty">Nog geen trainingen gelogd.</div>';
+    const leeg = '<div class="empty">Nog geen trainingen gelogd.</div>';
+    listEl.innerHTML = leeg;
+    if(fullEl) fullEl.innerHTML = leeg;
     return;
   }
   const sorted = [...entries].sort((a,b)=> new Date(b.date)-new Date(a.date));
-  listEl.innerHTML = sorted.map(e=>{
+  const html = sorted.map(e=>{
     const pace = paceSecPerKm(e.duur, e.afstand);
     const typeLabel = {rustig:'Rustig', tempo:'Tempo', lang:'Lang'}[e.type];
     return `
@@ -493,8 +715,10 @@ function renderList(){
       ${isUnlocked() ? `<button class="entry-del" data-id="${e.id}">verwijderen</button>` : ''}
     </div>`;
   }).join('');
+  listEl.innerHTML = html;
+  if(fullEl) fullEl.innerHTML = html;
 
-  listEl.querySelectorAll('.entry-del').forEach(btn=>{
+  document.querySelectorAll('.entry-del').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       if(!isUnlocked()){
         showFormMsg('🔒 Wachtwoord vereist om te verwijderen.');
@@ -512,17 +736,15 @@ function isUnlocked(){
   return sessionStorage.getItem('ddh-unlocked') === '1';
 }
 
-let chart;
-function renderChart(){
+let chart, chartBig;
+function buildChartConfig(){
   const sorted = [...entries].sort((a,b)=> new Date(a.date)-new Date(b.date));
   const labels = sorted.map(e=>fmtDate(e.date));
   const colors = {rustig:'#8b8f98', tempo:'#e5484d', lang:'#e8b64c'};
   const data = sorted.map(e=> paceSecPerKm(e.duur,e.afstand));
   const pointColors = sorted.map(e=>colors[e.type]);
 
-  const ctx = document.getElementById('paceChart').getContext('2d');
-  if(chart) chart.destroy();
-  chart = new Chart(ctx, {
+  return {
     type:'line',
     data:{
       labels,
@@ -548,6 +770,7 @@ function renderChart(){
     },
     options:{
       responsive:true,
+      maintainAspectRatio:false,
       plugins:{
         legend:{labels:{color:'#8b8f98', boxWidth:12, font:{size:11}}},
       },
@@ -560,7 +783,18 @@ function renderChart(){
         }
       }
     }
-  });
+  };
+}
+function renderChart(){
+  const ctx = document.getElementById('paceChart').getContext('2d');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, buildChartConfig());
+}
+function openChartModal(){
+  document.getElementById('chartModal').classList.add('open');
+  const ctx = document.getElementById('paceChartBig').getContext('2d');
+  if(chartBig) chartBig.destroy();
+  chartBig = new Chart(ctx, buildChartConfig());
 }
 
 function renderPlanThisWeek(){
@@ -814,6 +1048,7 @@ function renderAll(){
   renderList();
   renderChart();
   renderSyncBadge();
+  renderAdherence();
 }
 
 function syncEnabled(){
@@ -835,6 +1070,40 @@ async function save(){
   }
   renderSyncBadge();
   if(syncEnabled()) await pushToGithub();
+}
+
+// Adherentie: uitgevoerde sessies t.o.v. 3 per afgesloten week (lopende week telt nog niet mee)
+function computeAdherence(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dayN = Math.floor((today - PLAN_START)/86400000) + 1; // dag 1 = ma 13/7
+  if(dayN < 1) return null;
+  // verwacht tot vandaag: 3 sessies per volledige week, pro rata voor de lopende week
+  const expected = Math.max(1, Math.min(TOTAL_WEEKS*3, Math.floor(dayN/7*3) || 1));
+  const wkNow = Math.min(Math.max(getWeekNumber(new Date()), 1), TOTAL_WEEKS);
+  let done = 0, opPlan = 0;
+  for(let w=1; w<=wkNow; w++){
+    const [s,e] = getWeekBounds(w);
+    const ex = new Date(e); ex.setDate(ex.getDate()+1);
+    const types = new Set();
+    entries.forEach(en=>{
+      const d = new Date(en.date+'T00:00:00');
+      if(d>=s && d<ex && !types.has(en.type)){
+        types.add(en.type);
+        if(en.plan) opPlan++;
+      }
+    });
+    done += types.size; // max 3 per week (unieke sessietypes)
+  }
+  return {pct: Math.min(100, Math.round(done/expected*100)), done, expected, opPlan};
+}
+function renderAdherence(){
+  const el = document.getElementById('adherence');
+  if(!el) return;
+  const a = computeAdherence();
+  if(!a){ el.style.display='none'; return; }
+  el.style.display = 'block';
+  el.className = 'adherence ' + (a.pct>=90 ? 'good' : a.pct>=70 ? 'mid' : 'low');
+  el.innerHTML = `🐾 Op schema: <b>${a.pct}%</b> (${a.done}/${a.expected} verwacht) · ${a.opPlan} volgens plan`;
 }
 
 function renderSyncBadge(){
@@ -964,10 +1233,13 @@ async function pullFromGithub(){
   }catch(e){ renderSyncBadge(); /* offline — lokaal werkt gewoon door */ }
 }
 
-document.getElementById('goSettings').addEventListener('click', ()=>{
-  const d = document.getElementById('githubDetails');
-  d.open = true;
-  d.scrollIntoView({behavior:'smooth'});
+function openSettingsModal(){ document.getElementById('settingsModal').classList.add('open'); }
+document.getElementById('openSettings').addEventListener('click', openSettingsModal);
+document.getElementById('settingsClose').addEventListener('click', ()=>{
+  document.getElementById('settingsModal').classList.remove('open');
+});
+document.getElementById('settingsModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'settingsModal') e.currentTarget.classList.remove('open');
 });
 
 document.getElementById('gh-save').addEventListener('click', async ()=>{
@@ -1037,7 +1309,79 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
   renderAll();
 });
 
+// PC-dashboard: schaal het vaste canvas proportioneel naar het venster (nooit scrollen)
+function fitDashboard(){
+  const w = document.querySelector('.wrap');
+  if(!w) return;
+  if(window.innerWidth < 1100){ w.style.transform = ''; w.style.width = ''; return; }
+  // hoogte bepaalt de schaal; de canvasbreedte rekt mee zodat de volle breedte gevuld is
+  const s = Math.min(window.innerHeight/860, window.innerWidth/1280, 1.35);
+  w.style.width = Math.min(1900, Math.round(window.innerWidth/s)) + 'px';
+  w.style.transform = `translate(-50%,-50%) scale(${s})`;
+}
+window.addEventListener('resize', fitDashboard);
+
+// Nette +/− steppers rond de cijfervelden (duur & afstand)
+document.querySelectorAll('#f-duur, #f-afstand').forEach(inp=>{
+  const wrap = document.createElement('div');
+  wrap.className = 'stepper';
+  inp.parentNode.insertBefore(wrap, inp);
+  const mk = (txt)=>{ const b=document.createElement('button'); b.type='button'; b.className='step-btn'; b.textContent=txt; return b; };
+  const minus = mk('−'), plus = mk('+');
+  wrap.appendChild(minus); wrap.appendChild(inp); wrap.appendChild(plus);
+  const step = parseFloat(inp.step) || 1;
+  const dec = step < 1 ? 1 : 0;
+  const bump = d=>{ const v = (parseFloat(inp.value) || 0) + d*step; inp.value = Math.max(0, v).toFixed(dec); };
+  minus.addEventListener('click', ()=>bump(-1));
+  plus.addEventListener('click', ()=>bump(1));
+});
+
+// Volledig logboek openen (dashboard) — via de knop bovenaan
+document.getElementById('openLog').addEventListener('click', (e)=>{
+  e.stopPropagation(); // niet ook de grafiek-popup openen
+  document.getElementById('logModal').classList.add('open');
+});
+document.getElementById('logClose').addEventListener('click', ()=>{
+  document.getElementById('logModal').classList.remove('open');
+});
+document.getElementById('logModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'logModal') e.currentTarget.classList.remove('open');
+});
+
+// Uitleg & volledig schema: op het dashboard in een groot popupvenster
+document.querySelectorAll('.sec-schema details.schedule > summary').forEach(sum=>{
+  sum.addEventListener('click', (e)=>{
+    if(window.innerWidth < 1100) return; // mobiel: gewoon uitklappen
+    e.preventDefault();
+    const det = sum.parentElement;
+    const body = det.querySelector('.explain') || det.querySelector('#scheduleList');
+    if(!body) return;
+    document.getElementById('infoTitle').textContent = sum.textContent.replace('▾','').trim();
+    document.getElementById('infoBody').innerHTML = body.innerHTML;
+    document.getElementById('infoModal').classList.add('open');
+  });
+});
+document.getElementById('infoClose').addEventListener('click', ()=>{
+  document.getElementById('infoModal').classList.remove('open');
+});
+document.getElementById('infoModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'infoModal') e.currentTarget.classList.remove('open');
+});
+
+// Grafiek groter tonen in popup (dashboard)
+document.querySelector('.sec-chart').addEventListener('click', ()=>{
+  if(window.innerWidth < 1100) return;
+  openChartModal();
+});
+document.getElementById('chartClose').addEventListener('click', ()=>{
+  document.getElementById('chartModal').classList.remove('open');
+});
+document.getElementById('chartModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'chartModal') e.currentTarget.classList.remove('open');
+});
+
 (async ()=>{
+  fitDashboard();
   document.getElementById('f-date').valueAsDate = new Date();
   await load();
   await populateGithubForm();
@@ -1045,7 +1389,9 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
   const cfg = await loadGithubConfig();
   if(!cfg || !cfg.token){
     document.getElementById('setupHint').innerHTML =
-      'Voeg eerst eenmalig je GitHub-token toe bij <b>GitHub sync</b> (onderaan) en klik op "Instellingen opslaan". ';
+      'Voeg eerst eenmalig je GitHub-token toe via <b>⚙️ Sync-instellingen</b> bovenaan. ';
+    document.getElementById('setupTop').textContent =
+      '👋 Steven — token toevoegen via ⚙ · loggen kan enkel met het wachtwoord';
   }
   renderAll();
   pullFromGithub(); // haalt op de achtergrond het log op van GitHub en merget nieuwe entries
