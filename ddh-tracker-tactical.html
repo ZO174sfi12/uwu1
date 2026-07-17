@@ -3,34 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DDH Tracker</title>
+<title>DDH Mission System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg:#0b0518;
-    --bg2:#170a2e;
-    --surface:#1c0f36;
-    --surface2:#271345;
-    --text:#ffeafb;
-    --muted:#b79bd6;
-    --accent:#ff2ea6;
-    --accent2:#4de3ff;
-    --good:#39ff9c;
-    --line:#3c2260;
-    --glow-pink:rgba(255,46,166,.5);
-    --glow-cyan:rgba(77,227,255,.4);
+    --bg:#0d0e0c;
+    --bg2:#151713;
+    --surface:#191c17;
+    --surface2:#222620;
+    --text:#f2f2ee;
+    --muted:#969b90;
+    --accent:#d9a441;
+    --accent2:#a8b39a;
+    --good:#8fbf6f;
+    --line:#2b2f28;
+    --glow-pink:rgba(217,164,65,.25);
+    --glow-cyan:rgba(168,179,154,.15);
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
     background:
-      radial-gradient(circle at 15% 0%, rgba(255,46,166,.15), transparent 45%),
-      radial-gradient(circle at 85% 15%, rgba(77,227,255,.12), transparent 40%),
+      radial-gradient(circle at 15% 0%, rgba(217,164,65,.05), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(150,155,144,.04), transparent 40%),
       var(--bg);
     color:var(--text);
-    font-family:'Quicksand',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     padding-bottom:70px;
   }
   .wrap{max-width:640px;margin:0 auto;padding:0 24px;}
@@ -53,12 +53,12 @@
   .hero::before{left:calc(50% - 78px);transform:rotate(-20deg);}
   .hero::after{left:calc(50% + 30px);transform:rotate(20deg);border-bottom-color:var(--accent2);filter:drop-shadow(0 0 12px var(--glow-cyan));}
   .hero .eyebrow{
-    font-family:'Baloo 2',sans-serif;
+    font-family:'Barlow Condensed',sans-serif;
     font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
     margin-bottom:14px;position:relative;
   }
   .hero .days{
-    font-family:'Baloo 2',sans-serif;
+    font-family:'Barlow Condensed',sans-serif;
     font-size:66px;font-weight:800;line-height:1;color:var(--text);
     letter-spacing:-0.01em;
     text-shadow:0 0 10px var(--glow-pink), 0 0 26px var(--glow-cyan);
@@ -78,7 +78,7 @@
   .week-plan{padding:0 24px 20px;border-bottom:1px solid var(--line);}
   .plan-hint{
     display:none;margin-bottom:16px;padding:10px 14px;font-size:13px;
-    background:rgba(77,227,255,.08);border:1px solid var(--accent2);border-radius:12px;
+    background:rgba(217,164,65,.06);border:1px solid var(--accent2);border-radius:12px;
     color:var(--accent2);font-family:"SF Mono",ui-monospace,monospace;
   }
   .theme-link{
@@ -108,17 +108,17 @@
   .countdown-line b{color:var(--text);font-weight:600;}
   #countdown{
     display:block;margin-bottom:6px;
-    color:var(--accent);font-family:'Baloo 2',sans-serif;font-size:80px;font-weight:800;line-height:1;
+    color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:80px;font-weight:800;line-height:1;
     text-shadow:0 0 12px var(--glow-pink), 0 0 36px var(--glow-pink), 0 0 70px var(--glow-pink);
   }
   .mini-btn{
     width:auto;display:inline-block;margin-top:10px;padding:6px 14px;font-size:12px;
     background:var(--surface2);border:1px solid var(--line);color:var(--accent2);
-    border-radius:999px;box-shadow:none;font-family:'Quicksand',sans-serif;font-weight:600;
+    border-radius:999px;box-shadow:none;font-family:'Inter',sans-serif;font-weight:600;
   }
   .form-msg{
     display:none;margin-top:12px;padding:11px 14px;font-size:13px;border-radius:12px;
-    background:rgba(255,46,166,.08);border:1px solid var(--accent);color:var(--accent);font-weight:600;
+    background:rgba(217,164,65,.08);border:1px solid var(--accent);color:var(--accent);font-weight:600;
   }
   .explain{padding:2px 20px 16px;font-size:13px;color:var(--muted);line-height:1.65;}
   .explain p{margin:0 0 12px;}
@@ -127,12 +127,12 @@
   .week .label{font-size:13px;color:var(--muted);font-weight:600;}
   .dots{display:flex;gap:10px;}
   .dot{width:13px;height:13px;border-radius:50%;background:var(--surface2);border:1px solid var(--line);}
-  .dot.filled{background:var(--good);border-color:var(--good);box-shadow:0 0 8px rgba(57,255,156,.6);}
+  .dot.filled{background:var(--good);border-color:var(--good);box-shadow:0 0 8px rgba(143,191,111,.35);}
 
   /* PLAN */
   .plan-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;}
   .plan-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;flex-wrap:wrap;gap:6px;}
-  .plan-phase{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.02em;}
+  .plan-phase{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.02em;}
   .plan-dates{font-size:12px;color:var(--muted);}
   .plan-session{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--line);font-size:13px;cursor:pointer;border-radius:10px;transition:background .12s;}
   .plan-session:hover{background:rgba(255,255,255,.04);}
@@ -144,7 +144,7 @@
   .plan-session .desc{flex:1;font-family:"SF Mono",ui-monospace,monospace;font-size:13px;}
   .plan-session.done .desc{color:var(--good);}
   .plan-session .check{flex:none;width:20px;text-align:center;color:var(--line);}
-  .plan-session.done .check{color:var(--good);text-shadow:0 0 6px rgba(57,255,156,.7);}
+  .plan-session.done .check{color:var(--good);text-shadow:0 0 6px rgba(143,191,111,.5);}
   .plan-star{font-size:17px;margin-left:8px;filter:drop-shadow(0 0 6px gold);}
 
   details.schedule{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;}
@@ -159,7 +159,7 @@
     padding:12px 20px;border-top:1px solid var(--line);font-size:12px;
     display:grid;grid-template-columns:auto auto 1fr;gap:12px;align-items:baseline;
   }
-  .week-row.active{background:rgba(255,46,166,.1);}
+  .week-row.active{background:rgba(217,164,65,.08);}
   .week-row .wk{color:var(--text);font-weight:700;font-family:"SF Mono",ui-monospace,monospace;}
   .week-row .dates{color:var(--muted);white-space:nowrap;}
   .week-row .phase{color:var(--muted);text-align:right;}
@@ -171,11 +171,11 @@
 
   section{padding:34px 24px;border-bottom:1px solid var(--line);}
   h2{
-    font-family:'Baloo 2',sans-serif;
+    font-family:'Barlow Condensed',sans-serif;
     font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent2);
     margin:0 0 20px;font-weight:700;display:flex;align-items:center;gap:8px;
   }
-  h2::before{content:'🐾';font-size:13px;filter:drop-shadow(0 0 4px var(--glow-pink));}
+  h2::before{content:'▸';font-size:13px;filter:drop-shadow(0 0 4px var(--glow-pink));}
 
   /* FORM */
   .field{margin-bottom:18px;}
@@ -192,9 +192,9 @@
   }
   .check input{width:19px;height:19px;flex:none;accent-color:var(--accent);}
   button{
-    width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#100816;border:none;
+    width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0e0c;border:none;
     border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.02em;
-    box-shadow:0 0 18px var(--glow-pink);font-family:'Baloo 2',sans-serif;
+    box-shadow:0 0 18px var(--glow-pink);font-family:'Barlow Condensed',sans-serif;
   }
   button:active{opacity:.88;}
   button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);margin-top:10px;box-shadow:none;}
@@ -246,27 +246,27 @@
 <body>
 <div class="wrap">
 
-  <a class="theme-link" href="ddh-tracker-tactical.html">🎖️ Mission mode</a>
+  <a class="theme-link" href="ddh-tracker.html">↩ Neon modus</a>
 
   <section class="plan-img">
-    <img src="plan.jpg?v=2" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
+    <img src="military.jpg?v=1" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
          onerror="this.parentElement.style.display='none'">
   </section>
 
   <section class="top-card" style="border-bottom:none;padding-bottom:0;">
     <div class="mascot-card">
-      <div class="mascot-face">(=^･ω･^=)</div>
+      <div class="mascot-face">⌖</div>
       <div class="mascot-bubble" id="mascotMsg">...</div>
     </div>
   </section>
 
   <section class="top-card">
     <div class="mascot-card">
-      <div class="mascot-face">(=ↀωↀ=)✧</div>
+      <div class="mascot-face">✪</div>
       <div class="mascot-bubble">
-        <b>Welkom Steven!</b> 🐾<br>
-        <span id="setupHint"></span>Loggen kan enkel met het wachtwoord in het opmerkingsveld — je weet welk 😉<br>
-        <button class="mini-btn" id="goSettings">⚙️ Instellingen</button>
+        <b>OPERATOR: STEVEN</b><br>
+        <span id="setupHint"></span>Registratie vereist de toegangscode in het opmerkingsveld — je kent de code.<br>
+        <button class="mini-btn" id="goSettings">⚙ INSTELLINGEN</button>
       </div>
     </div>
   </section>
@@ -283,7 +283,7 @@
 
   <section>
     <h2>Over het schema</h2>
-    <div class="countdown-line">Nog <b id="countdown">–</b> dagen tot DDH (11 okt) · doel: 10 km <b>onder 60:00</b> @ 5'50"/km ✧ nya~</div>
+    <div class="countdown-line">T-MINUS <b id="countdown">–</b> DAGEN · MISSIE: 10 KM <b>ONDER 60:00</b> · DOELTEMPO 5'50"/KM</div>
     <details class="schedule">
       <summary>Waarom dit plan werkt <span class="chev">▾</span></summary>
       <div class="explain">
@@ -489,7 +489,7 @@ function renderList(){
   listEl.querySelectorAll('.entry-del').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       if(!isUnlocked()){
-        showFormMsg('🔒 Wachtwoord vereist om te verwijderen.');
+        showFormMsg('⚠ Toegangscode vereist om te verwijderen.');
         return;
       }
       entries = entries.filter(e=>e.id!==btn.dataset.id);
@@ -508,7 +508,7 @@ let chart;
 function renderChart(){
   const sorted = [...entries].sort((a,b)=> new Date(a.date)-new Date(b.date));
   const labels = sorted.map(e=>fmtDate(e.date));
-  const colors = {rustig:'#8b8f98', tempo:'#e5484d', lang:'#e8b64c'};
+  const colors = {rustig:'#969b90', tempo:'#c65b4e', lang:'#b0b7a6'};
   const data = sorted.map(e=> paceSecPerKm(e.duur,e.afstand));
   const pointColors = sorted.map(e=>colors[e.type]);
 
@@ -522,7 +522,7 @@ function renderChart(){
         {
           label:'Tempo',
           data,
-          borderColor:'#f2efea',
+          borderColor:'#f2f2ee',
           backgroundColor:'transparent',
           pointBackgroundColor:pointColors,
           pointRadius:5,
@@ -531,7 +531,7 @@ function renderChart(){
         {
           label:'Doeltempo',
           data:labels.map(()=>GOAL_PACE_SEC),
-          borderColor:'#4cae6d',
+          borderColor:'#d9a441',
           borderDash:[6,4],
           pointRadius:0,
           borderWidth:1.5,
@@ -541,14 +541,14 @@ function renderChart(){
     options:{
       responsive:true,
       plugins:{
-        legend:{labels:{color:'#8b8f98', boxWidth:12, font:{size:11}}},
+        legend:{labels:{color:'#969b90', boxWidth:12, font:{size:11}}},
       },
       scales:{
-        x:{ticks:{color:'#8b8f98',font:{size:10}}, grid:{color:'#2c2e35'}},
+        x:{ticks:{color:'#969b90',font:{size:10}}, grid:{color:'#262a24'}},
         y:{
           reverse:true,
-          ticks:{color:'#8b8f98',font:{size:10}, callback:v=>fmtPace(v)},
-          grid:{color:'#2c2e35'}
+          ticks:{color:'#969b90',font:{size:10}, callback:v=>fmtPace(v)},
+          grid:{color:'#262a24'}
         }
       }
     }
@@ -610,7 +610,7 @@ function prefillTraining(type){
   document.getElementById('f-plan').checked = true;
 
   const hint = document.getElementById('planHint');
-  hint.textContent = `📋 Week ${wk} · ${wkData.phase}: ${s.desc}`;
+  hint.textContent = `▸ Week ${wk} · ${wkData.phase}: ${s.desc}`;
   hint.style.display = 'block';
 
   document.getElementById('inputSection').scrollIntoView({behavior:'smooth'});
@@ -698,93 +698,93 @@ function buildCheerCtx(){
 }
 const CHEER_POOLS = [
   { when:c=>c.daysLeft===0, msgs:[
-    c=>"VANDAAG IS DE DAG!! 10 km, onder het uur — go go go nya~!! 🏁🐾",
-    c=>"Race day! Rustig starten, vanaf km 7 alles geven. Ik geloof 100% in je 💥",
+    c=>"MISSIEDAG. Gecontroleerde start, vanaf km 7 vol vermogen. Uitvoeren. \ud83c\udf96\ufe0f",
+    c=>"D-day. 10 km, onder het uur. Je bent hiervoor getraind — lever.",
   ]},
   { when:c=>c.daysLeft<=6, msgs:[
-    c=>`Wedstrijdweek! Nog ${c.daysLeft} dagen... zenuwen zijn gewoon opgeslagen energie, nya~`,
-    c=>"Alles is gedaan wat gedaan moest worden. Nu enkel nog oogsten 🐾✨",
+    c=>`T-minus ${c.daysLeft} dagen. Alles is getraind; nu enkel nog uitvoeren.`,
+    c=>"Wedstrijdweek: energie sparen, scherp blijven. De missie is voorbereid.",
   ]},
   { when:c=>c.phase==='Taper', msgs:[
-    c=>"Taper-tijd: minder is meer. Je conditie is al binnen, uwu~",
-    c=>"Voel je je raar met zo weinig training? Perfect, dat is de bedoeling 😼",
-    c=>"−30% volume, +100% frisheid. Vertrouw het proces, nya~",
+    c=>"Taperprotocol actief: volume −30%. Herstel is een opdracht, geen optie.",
+    c=>"Onrustig van het weinige trainen? Correct signaal. Frisheid wint races.",
+    c=>"Vertrouw het protocol. De conditie is binnen, de vorm komt nu.",
   ]},
   { when:c=>c.allDone && c.prevAllDone, msgs:[
-    c=>"Twee weken op rij alles gehaald?! Machine! 🌟🌟",
-    c=>"Streak actief! Deze consistentie loopt zó naar sub-60, nya~",
+    c=>"Twee weken op rij 3/3. Discipline geregistreerd. Doorgaan.",
+    c=>"Streak actief. Dit niveau van consistentie levert sub-60 op.",
   ]},
   { when:c=>c.allDone, msgs:[
-    c=>"Drie op drie deze week!! Pure perfectie, nya~ 🌟",
-    c=>"Week volbracht! Rust nu — herstel is waar je sneller wordt 💕",
-    c=>"Alles afgevinkt, uwu ✨ Trakteer jezelf op iets lekkers.",
-    c=>`3/3! Week ${c.wk} zit erop — vandaag: genieten 🐾`,
+    c=>"Weekdoel behaald: 3/3. Ga in herstelmodus.",
+    c=>`Week ${c.wk} volbracht. Rust is nu onderdeel van de opdracht.`,
+    c=>"Alle sessies uitgevoerd. Status: op schema.",
+    c=>"3/3. Correct uitgevoerd. Volgende week nieuwe orders.",
   ]},
   { when:c=>c.kmMilestone, msgs:[
-    c=>`MIJLPAAL: ${c.kmMilestone} km totaal gelopen!! Wat een machine, nya~ 🎉🐾`,
-    c=>`${c.kmMilestone} km op de teller — elke stap bracht je hier. Trots! ✨`,
-    c=>`Welkom in de ${c.kmMilestone} km-club! Volgende halte: de finish in Hasselt 🏁`,
+    c=>`MIJLPAAL: ${c.kmMilestone} km totaal. Sterk werk, operator. \ud83c\udf96\ufe0f`,
+    c=>`${c.kmMilestone} km op de teller. Elke kilometer was verdiend.`,
+    c=>`${c.kmMilestone} km-grens gepasseerd. Volgend doel: de finish in Hasselt.`,
   ]},
   { when:c=>c.hourMilestone || c.countMilestone, msgs:[
-    c=>c.hourMilestone ? `Al ${c.hourMilestone} uur getraind in totaal — pure toewijding, uwu ⏱️✨` : `Training nummer ${c.countMilestone} gelogd! Consistentie-koning 👑`,
-    c=>`${c.totalCount} trainingen, ${c.totalKm.toFixed(0)} km, ${c.totalHours.toFixed(0)} uur — de teller loopt op, nya~ 📈`,
+    c=>c.hourMilestone ? `${c.hourMilestone} uur totale trainingstijd geregistreerd. Toewijding genoteerd.` : `Sessie nummer ${c.countMilestone} gelogd. Consistentie is een wapen.`,
+    c=>`${c.totalCount} sessies · ${c.totalKm.toFixed(0)} km · ${c.totalHours.toFixed(0)} uur. De teller loopt op.`,
   ]},
   { when:c=>c.heavy, msgs:[
-    c=>"Zware benen vandaag? Die dagen tellen dubbel. Rust goed, nya~ 💜",
-    c=>"Niet elke training hoeft te vliegen — je bent komen opdagen, en dát is de winst 🐾",
-    c=>"Zwaar gevoel, tóch gelopen. Daar wordt conditie van gemaakt, uwu",
+    c=>"Zware sessie gemeld. Herstel serieus nemen — ook dat is training.",
+    c=>"Niet elke dag is een topdag. Aanwezig geweest = missie geslaagd.",
+    c=>"Zwaar maar uitgevoerd. Precies daar wordt uithouding gebouwd.",
   ]},
   { when:c=>c.trendPct!==null && c.trendPct>=2, msgs:[
-    c=>`${c.trendPct.toFixed(0)}% sneller dan je vorige ${c.lastTypeLabel}! De lijn wijst naar sub-60 📉🔥`,
-    c=>`Week op week sneller op de ${c.lastTypeLabel} — precies wat het plan wil zien, nya~`,
+    c=>`${c.trendPct.toFixed(0)}% sneller dan de vorige ${c.lastTypeLabel}. Curve op koers.`,
+    c=>`Progressie op de ${c.lastTypeLabel} bevestigd. Het plan werkt — blijf erop.`,
   ]},
   { when:c=>c.last && c.daysSinceLast<=2 && c.lastPace && c.last.type!=='rustig' && c.lastPace<=GOAL_PACE_SEC, msgs:[
-    c=>"Je liep sneller dan wedstrijdtempo! Sub-60 zit er dik in 👀🔥",
-    c=>"5'50 al getikt in training — de wedstrijd wordt oogsten, nya~",
-    c=>"Doeltempo? Check. Nu vooral gezond en fris blijven 🐾",
+    c=>"Tempo onder doelpace geregistreerd. Sub-60 is binnen bereik.",
+    c=>"5'50 in training getikt. De wedstrijd wordt uitvoering, geen gok.",
+    c=>"Doeltempo behaald. Prioriteit nu: gezond en fris blijven.",
   ]},
   { when:c=>c.last && c.daysSinceLast<=2 && c.lastPace && c.lastPlanPace && c.lastPace < c.lastPlanPace*0.98, msgs:[
-    c=>"Sneller dan het plan vroeg! Sterk — maar spaar wat voor oktober, nya~ 😼",
-    c=>`Het plan zei ${fmtPace(c.lastPlanPace)}/km, jij liep ${fmtPace(c.lastPace)}/km. Wie traint hier wie? 💪`,
-    c=>"Boven verwachting! Onthoud dit gevoel voor een zware dag ✨",
+    c=>"Sneller dan opgedragen. Sterk — maar bewaar reserves voor oktober.",
+    c=>`Opdracht: ${fmtPace(c.lastPlanPace)}/km. Geleverd: ${fmtPace(c.lastPace)}/km. Genoteerd.`,
+    c=>"Boven verwachting gepresteerd. Onthoud dit voor een zware dag.",
   ]},
   { when:c=>c.last && c.daysSinceLast<=2 && !c.last.plan, msgs:[
-    c=>"Niet volgens plan? Geeft niks — gedaan is gedaan, en dát telt 🐾",
-    c=>"Een mindere dag maakt het schema niet kapot. Morgen weer fris, nya~",
-    c=>"Afgeweken maar gelopen: tien keer beter dan perfect op de bank, uwu",
+    c=>"Afwijking van het plan geregistreerd. Missie loopt door — morgen herpakken.",
+    c=>"Eén mindere sessie breekt het schema niet. Herstel en ga verder.",
+    c=>"Afgeweken maar uitgevoerd. Beter dan perfect aan de zijlijn.",
   ]},
   { when:c=>c.last && c.daysSinceLast>=4 && !c.allDone, msgs:[
-    c=>`Al ${c.daysSinceLast} dagen stil... de loopschoenen missen je, nya~ 🥺`,
-    c=>"Kleine pauze gehad? Prima. Vandaag weer opstarten? 🐾",
-    c=>"DDH traint niet zichzelf... eentje vandaag? Ik supporter mee!",
+    c=>`${c.daysSinceLast} dagen radiostilte. Meld je op de trail, operator.`,
+    c=>"Pauze geregistreerd. Vandaag hervatten — kort en rustig volstaat.",
+    c=>"De missie wacht. Eén sessie vandaag zet je terug op schema.",
   ]},
   { when:c=>c.doneCount===0 && c.dow>=3, msgs:[
-    c=>"Nog 0/3 en de week loopt af... vandaag rustig starten? 🐾",
-    c=>`Drie sessies, nog ${c.daysLeftWeek} dagen. Krap maar haalbaar — hup!`,
-    c=>"De week glipt weg, nya~ Zelfs een korte rustige loop telt!",
+    c=>"0/3 en de week sluit. Vandaag rustige duurloop — inhalen.",
+    c=>`Drie sessies, ${c.daysLeftWeek} dagen. Krap maar uitvoerbaar. Nu starten.`,
+    c=>"Weekvenster sluit. Zelfs een korte sessie telt. Uitvoeren.",
   ]},
   { when:c=>c.doneCount===0, msgs:[
-    c=>"Nieuwe week, schone lei! Welke wordt het vandaag: rustig, tempo of lang? ✨",
-    c=>"Nog niks gelogd deze week... kom op, ik geloof in je! 🐾",
+    c=>"Nieuwe week, nieuwe orders. Kies je sessie en voer uit.",
+    c=>"0/3. De week is jong — eerste sessie plannen en melden.",
   ]},
   { when:c=>c.last && c.daysSinceLast===0, msgs:[
-    c=>`Vers gelogd: ${c.last.afstand} km erbij — het totaal groeit, nya~ 📈`,
-    c=>"Weer een training in de pocket. Consistentie wint, uwu ✨",
+    c=>`Sessie geregistreerd: ${c.last.afstand} km. Teller loopt. \ud83d\udcc8`,
+    c=>"Training gelogd. Consistentie is het halve werk — goed bezig.",
   ]},
   { when:c=>c.missing.length===1, msgs:[
-    c=>`Nog ééntje: de ${c.missingLabel}. Dan is de week binnen! 🌟`,
-    c=>`2/3! De ${c.missingLabel} wacht nog — bijna feest, nya~`,
-    c=>`Zo dicht bij 3/3... die ${c.missingLabel} doet zichzelf niet, uwu`,
+    c=>`Nog één opdracht open: de ${c.missingLabel}. Maak de week af.`,
+    c=>`2/3 uitgevoerd. De ${c.missingLabel} staat nog open.`,
+    c=>`Bijna binnen. De ${c.missingLabel} sluit de week af.`,
   ]},
   { when:c=>c.doneCount===1, msgs:[
-    c=>`Eén binnen! Nog de ${c.missingLabel} en de week is rond 💪`,
-    c=>"Goede start van de week — momentum is er, hou het vast 🐾",
-    c=>"1/3, lekker op dreef nya~ Welke pak je morgen?",
+    c=>`1/3 uitgevoerd. Volgende opdracht: de ${c.missingLabel}.`,
+    c=>"Eerste sessie binnen. Momentum vasthouden.",
+    c=>"1/3. Goede opening — plan de volgende.",
   ]},
 ];
 const CHEER_DEFAULT = [
-  c=>"Stap voor stap naar sub-60, nya~ 🐾",
-  c=>"Elke kilometer telt. DDH komt dichterbij ✨",
+  c=>"Stap voor stap. Missie: sub-60.",
+  c=>"Elke kilometer telt. 11 oktober nadert.",
 ];
 function pickEncouragement(){
   const ctx = buildCheerCtx();
@@ -957,7 +957,7 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
 
   // Wachtwoord is verplicht om te kunnen loggen; wordt niet mee opgeslagen
   if(!comment.toLowerCase().includes(GITHUB_TRIGGER)){
-    showFormMsg('🔒 Wachtwoord vereist: typ het in het opmerkingsveld om te loggen.');
+    showFormMsg('⚠ Toegangscode vereist: voer het wachtwoord in bij opmerking.');
     return;
   }
   localStorage.setItem(SYNC_FLAG_KEY, '1');
@@ -969,7 +969,7 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
     document.getElementById('f-comment').value='';
     await save();
     renderAll();
-    showFormMsg('🧹 Logboek geleegd en gesynchroniseerd.');
+    showFormMsg('Logboek gewist en gesynchroniseerd.');
     return;
   }
   // Alleen het wachtwoord getypt? Dan enkel synchroniseren + ontgrendelen, geen entry aanmaken.
@@ -1009,7 +1009,7 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
   const cfg = await loadGithubConfig();
   if(!cfg || !cfg.token){
     document.getElementById('setupHint').innerHTML =
-      'Voeg eerst eenmalig je GitHub-token toe bij <b>GitHub sync</b> (onderaan) en klik op "Instellingen opslaan". ';
+      'Autorisatie vereist: voeg eenmalig je GitHub-token toe bij <b>GitHub sync</b> (onderaan) en sla op. ';
   }
   renderAll();
   pullFromGithub(); // haalt op de achtergrond het log op van GitHub en merget nieuwe entries

@@ -3,31 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DDH Tracker</title>
+<title>DDH Tracker ☀️</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg:#0b0518;
-    --bg2:#170a2e;
-    --surface:#1c0f36;
-    --surface2:#271345;
-    --text:#ffeafb;
-    --muted:#b79bd6;
-    --accent:#ff2ea6;
-    --accent2:#4de3ff;
-    --good:#39ff9c;
-    --line:#3c2260;
-    --glow-pink:rgba(255,46,166,.5);
-    --glow-cyan:rgba(77,227,255,.4);
+    --bg:#faf6ff;
+    --bg2:#f3e8ff;
+    --surface:#ffffff;
+    --surface2:#f3e8ff;
+    --text:#2a1240;
+    --muted:#7c6a92;
+    --accent:#e0158f;
+    --accent2:#0aa6c9;
+    --good:#0fae6d;
+    --line:#e5d5f5;
+    --glow-pink:rgba(224,21,143,.22);
+    --glow-cyan:rgba(10,166,201,.18);
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
     background:
-      radial-gradient(circle at 15% 0%, rgba(255,46,166,.15), transparent 45%),
-      radial-gradient(circle at 85% 15%, rgba(77,227,255,.12), transparent 40%),
+      radial-gradient(circle at 15% 0%, rgba(224,21,143,.05), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(10,166,201,.05), transparent 40%),
       var(--bg);
     color:var(--text);
     font-family:'Quicksand',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
@@ -78,7 +78,7 @@
   .week-plan{padding:0 24px 20px;border-bottom:1px solid var(--line);}
   .plan-hint{
     display:none;margin-bottom:16px;padding:10px 14px;font-size:13px;
-    background:rgba(77,227,255,.08);border:1px solid var(--accent2);border-radius:12px;
+    background:rgba(10,166,201,.08);border:1px solid var(--accent2);border-radius:12px;
     color:var(--accent2);font-family:"SF Mono",ui-monospace,monospace;
   }
   .theme-link{
@@ -118,7 +118,7 @@
   }
   .form-msg{
     display:none;margin-top:12px;padding:11px 14px;font-size:13px;border-radius:12px;
-    background:rgba(255,46,166,.08);border:1px solid var(--accent);color:var(--accent);font-weight:600;
+    background:rgba(224,21,143,.06);border:1px solid var(--accent);color:var(--accent);font-weight:600;
   }
   .explain{padding:2px 20px 16px;font-size:13px;color:var(--muted);line-height:1.65;}
   .explain p{margin:0 0 12px;}
@@ -127,7 +127,7 @@
   .week .label{font-size:13px;color:var(--muted);font-weight:600;}
   .dots{display:flex;gap:10px;}
   .dot{width:13px;height:13px;border-radius:50%;background:var(--surface2);border:1px solid var(--line);}
-  .dot.filled{background:var(--good);border-color:var(--good);box-shadow:0 0 8px rgba(57,255,156,.6);}
+  .dot.filled{background:var(--good);border-color:var(--good);box-shadow:0 0 8px rgba(15,174,109,.35);}
 
   /* PLAN */
   .plan-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;}
@@ -135,7 +135,7 @@
   .plan-phase{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.02em;}
   .plan-dates{font-size:12px;color:var(--muted);}
   .plan-session{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--line);font-size:13px;cursor:pointer;border-radius:10px;transition:background .12s;}
-  .plan-session:hover{background:rgba(255,255,255,.04);}
+  .plan-session:hover{background:rgba(0,0,0,.04);}
   .plan-session:first-of-type{border-top:none;}
   .plan-session .tag{
     flex:none;width:56px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;
@@ -144,7 +144,7 @@
   .plan-session .desc{flex:1;font-family:"SF Mono",ui-monospace,monospace;font-size:13px;}
   .plan-session.done .desc{color:var(--good);}
   .plan-session .check{flex:none;width:20px;text-align:center;color:var(--line);}
-  .plan-session.done .check{color:var(--good);text-shadow:0 0 6px rgba(57,255,156,.7);}
+  .plan-session.done .check{color:var(--good);text-shadow:0 0 6px rgba(15,174,109,.5);}
   .plan-star{font-size:17px;margin-left:8px;filter:drop-shadow(0 0 6px gold);}
 
   details.schedule{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;}
@@ -159,7 +159,7 @@
     padding:12px 20px;border-top:1px solid var(--line);font-size:12px;
     display:grid;grid-template-columns:auto auto 1fr;gap:12px;align-items:baseline;
   }
-  .week-row.active{background:rgba(255,46,166,.1);}
+  .week-row.active{background:rgba(224,21,143,.07);}
   .week-row .wk{color:var(--text);font-weight:700;font-family:"SF Mono",ui-monospace,monospace;}
   .week-row .dates{color:var(--muted);white-space:nowrap;}
   .week-row .phase{color:var(--muted);text-align:right;}
@@ -192,7 +192,7 @@
   }
   .check input{width:19px;height:19px;flex:none;accent-color:var(--accent);}
   button{
-    width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#100816;border:none;
+    width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#ffffff;border:none;
     border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.02em;
     box-shadow:0 0 18px var(--glow-pink);font-family:'Baloo 2',sans-serif;
   }
@@ -246,7 +246,7 @@
 <body>
 <div class="wrap">
 
-  <a class="theme-link" href="ddh-tracker-tactical.html">🎖️ Mission mode</a>
+  <a class="theme-link" href="ddh-tracker.html">🌙 Donker thema</a>
 
   <section class="plan-img">
     <img src="plan.jpg?v=2" alt="Volledig trainingsplan — Dwars door Hasselt, 13 weken"
@@ -508,7 +508,7 @@ let chart;
 function renderChart(){
   const sorted = [...entries].sort((a,b)=> new Date(a.date)-new Date(b.date));
   const labels = sorted.map(e=>fmtDate(e.date));
-  const colors = {rustig:'#8b8f98', tempo:'#e5484d', lang:'#e8b64c'};
+  const colors = {rustig:'#7c6a92', tempo:'#e5484d', lang:'#d99a17'};
   const data = sorted.map(e=> paceSecPerKm(e.duur,e.afstand));
   const pointColors = sorted.map(e=>colors[e.type]);
 
@@ -522,7 +522,7 @@ function renderChart(){
         {
           label:'Tempo',
           data,
-          borderColor:'#f2efea',
+          borderColor:'#2a1240',
           backgroundColor:'transparent',
           pointBackgroundColor:pointColors,
           pointRadius:5,
@@ -531,7 +531,7 @@ function renderChart(){
         {
           label:'Doeltempo',
           data:labels.map(()=>GOAL_PACE_SEC),
-          borderColor:'#4cae6d',
+          borderColor:'#0fae6d',
           borderDash:[6,4],
           pointRadius:0,
           borderWidth:1.5,
@@ -541,14 +541,14 @@ function renderChart(){
     options:{
       responsive:true,
       plugins:{
-        legend:{labels:{color:'#8b8f98', boxWidth:12, font:{size:11}}},
+        legend:{labels:{color:'#7c6a92', boxWidth:12, font:{size:11}}},
       },
       scales:{
-        x:{ticks:{color:'#8b8f98',font:{size:10}}, grid:{color:'#2c2e35'}},
+        x:{ticks:{color:'#7c6a92',font:{size:10}}, grid:{color:'#e5d5f5'}},
         y:{
           reverse:true,
-          ticks:{color:'#8b8f98',font:{size:10}, callback:v=>fmtPace(v)},
-          grid:{color:'#2c2e35'}
+          ticks:{color:'#7c6a92',font:{size:10}, callback:v=>fmtPace(v)},
+          grid:{color:'#e5d5f5'}
         }
       }
     }
