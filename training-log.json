@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "mrzbj9bys0y2",
+    "date": "2026-07-24",
+    "type": "rustig",
+    "duur": 23,
+    "afstand": 4,
+    "plan": true,
+    "comment": ""
+  }
+]
